@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}SchoolComms{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Favicon clásico -->
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/png">
+
+  <!-- Iconos para Apple (iOS/iPadOS) -->
+  <link rel="apple-touch-icon" href="{% static 'img/favicon.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicon.png' %}">
+
+  <!-- Iconos para Android/Chrome -->
+  <link rel="icon" sizes="192x192" href="{% static 'img/favicon.png' %}">
+  <link rel="icon" sizes="512x512" href="{% static 'img/favicon.png' %}">
+
+  <!-- Manifest (opcional si piensas hacer PWA) -->
+  <link rel="manifest" href="{% static 'site.webmanifest' %}">
+
+  <!-- Colores para móviles -->
+  <meta name="theme-color" content="#2563eb"> <!-- azul Tailwind -->
+  <meta name="msapplication-TileColor" content="#2563eb">
+
+  <!-- Tailwind CSS -->
+  <script>
+    tailwind = { config: { theme: { extend: {} } } };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome -->
+  <script src="https://kit.fontawesome.com/2d4f4c7f2b.js" crossorigin="anonymous" defer></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-gradient-to-br from-indigo-50 via-blue-50 to-yellow-50 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header>
+    {% block header %}
+    <!-- Puedes sobrescribir este bloque en plantillas hijas -->
+    {% endblock %}
+  </header>
+
+  <!-- Main content -->
+  <main class="flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-sm text-gray-500 py-4">
+    <p>© SchoolComms - Desarrollado por Barberá Digital Studio</p>
+  </footer>
+
+  <!-- Scripts adicionales -->
+  {% block extra_js %}{% endblock %}
+
+  <script>
+(function(){
+  function getCsrf(){
+    const input = document.querySelector("input[name='csrfmiddlewaretoken']");
+    return input ? input.value : null;
+  }
+  function removeNode(node){
+    if (!node) return;
+    node.style.transition = "opacity .18s ease, transform .18s ease";
+    node.style.opacity = "0";
+    node.style.transform = "translateY(4px)";
+    setTimeout(() => node.remove(), 180);
+  }
+  function updateCounters(){
+    const dashBadge = document.getElementById("dash-unread-count");
+    if (dashBadge) {
+      const n = parseInt(dashBadge.textContent || "0", 10);
+      if (!isNaN(n) && n > 0) dashBadge.textContent = String(n - 1);
+    }
+  }
+  function handleEmptyInbox(){
+    const tbody = document.querySelector(".inbox-table tbody");
+    if (tbody && tbody.querySelectorAll("tr").length === 0){
+      const empty = document.createElement("tr");
+      empty.innerHTML = `<td colspan="5" class="text-center text-muted py-4">
+        <i class="fas fa-inbox-open"></i> No tienes mensajes en tu bandeja.
+      </td>`;
+      tbody.appendChild(empty);
+    }
+  }
+  function handleEmptyDashboard(){
+    const list = document.querySelector(".dash-msg-list");
+    const card = document.getElementById("dashboard-messages-card");
+    if (list && card && list.querySelectorAll(".dash-msg-item").length === 0){
+      card.classList.add("hidden");
+    }
+  }
+
+  document.addEventListener("submit", async (e) => {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (form.dataset.action !== "toggle-read") return;
+    e.preventDefault();
+
+    const btn = form.querySelector("button[type='submit']");
+    if (btn) btn.disabled = true;
+
+    const csrf = form.querySelector("input[name='csrfmiddlewaretoken']")?.value || getCsrf();
+    const headers = csrf ? { "X-CSRFToken": csrf } : {};
+
+    try {
+      const res = await fetch(form.action, { method: "POST", headers });
+      if (res.status === 204) {
+        const row = form.closest("tr");
+        const li = form.closest("li");
+        if (row) {
+          removeNode(row);
+          updateCounters();
+          handleEmptyInbox();
+          handleEmptyDashboard();
+        } else if (li) {
+          removeNode(li);
+          updateCounters();
+          handleEmptyDashboard();
+        }
+      } else {
+        if (btn) btn.disabled = false;
+      }
+    } catch {
+      if (btn) btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

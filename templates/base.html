@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <title>{% block title %}SchoolComms{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Favicon (optional, ensure file exists in STATIC_ROOT/static) -->
+  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+  <style>
+    /* Reset y fuente global */
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    body > .page-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main { flex: 1; }
+
+    /* -------- NAVBAR -------- */
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      background-color: #fff;
+    }
+    .navbar-brand {
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: #111827 !important;
+    }
+    .navbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .navbar .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      font-weight: 500;
+      color: #374151 !important;
+      transition: color 0.2s ease;
+    }
+    .navbar .nav-link:hover { color: #2563eb !important; }
+
+    /* -------- AVATAR -------- */
+    .navbar .avatar-fallback,
+    .navbar .nav-link img.rounded-circle {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.9rem; text-transform: uppercase;
+      margin-left: 1rem; background-color: #3b82f6; color: #fff;
+      cursor: pointer; flex-shrink: 0;
+    }
+
+    /* Dropdown */
+    .navbar .dropdown-menu {
+      min-width: 220px; border-radius: 0.75rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      border: none; padding: 0.5rem 0;
+    }
+    .navbar .dropdown-item { padding: 0.6rem 1rem; font-weight: 500; color: #374151; }
+    .navbar .dropdown-item:hover { background-color: #f3f4f6; color: #111827; }
+    .navbar .dropdown-item.text-danger:hover { background-color: #fee2e2; color: #b91c1c; }
+
+    /* -------- CARDS -------- */
+    .card { transition: all 0.3s ease-in-out; border-radius: 1rem; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .card:hover { transform: scale(1.01); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+
+    /* -------- FOOTER -------- */
+    footer {
+      background-color: #e5e7eb;
+      padding: 1rem 0;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #374151;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="page-container">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" aria-label="SchoolComms main navigation">
+      <div class="container">
+        <a class="navbar-brand text-primary" href="/">📚 SchoolComms</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menú">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:inbox' %}">Bandeja de Entrada</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:outbox' %}">Bandeja de Salida</a></li>
+
+            <!-- Dropdown usuario -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                {% if user.is_authenticated and user.avatar %}
+                  <img src="{{ user.avatar.url }}" alt="Avatar de usuario" class="rounded-circle" width="36" height="36">
+                {% elif user.is_authenticated %}
+                  <div class="avatar-fallback" data-username="{{ user.first_name|default:user.username }}" aria-hidden="true"></div>
+                {% else %}
+                  <i class="fa fa-user-circle fa-2x text-secondary" aria-hidden="true"></i>
+                {% endif %}
+              </a>
+
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                {% if user.is_authenticated %}
+                  <li class="dropdown-header">{{ user.first_name|default:user.username }}</li>
+                  <li><a class="dropdown-item" href="{% url 'core:perfil_usuario' user.id %}">👤 Ver perfil</a></li>
+                  <li><a class="dropdown-item" href="{% url 'core:editar_perfil' %}">✏️ Editar perfil</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">🚪 Cerrar sesión</a></li>
+                {% else %}
+                  <li><a class="dropdown-item" href="{% url 'login' %}">👤 Iniciar sesión</a></li>
+                  <li><a class="dropdown-item" href="{% url 'core:registro' %}">📝 Registrarse</a></li>
+                  <li><a class="dropdown-item" href="{% url 'password_reset' %}">🔑 ¿Olvidaste tu contraseña?</a></li>
+                {% endif %}
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      © {{ now|date:"Y" }} SchoolComms · Desarrollado por Barberá Digital Studio
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Iniciales con color determinista
+    const colors = ["#3b82f6","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6"];
+    document.querySelectorAll(".avatar-fallback").forEach(el => {
+      const username = el.dataset.username || "?";
+      const initial = username.trim().charAt(0).toUpperCase() || "?";
+      const colorIndex = initial.charCodeAt(0) % colors.length;
+      el.textContent = initial;
+      el.style.backgroundColor = colors[colorIndex];
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

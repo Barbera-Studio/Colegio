@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calendario de Tareas · SchoolComms{% endblock %}
+
+{% block extra_head %}
+<!-- FullCalendar v6 no requiere CSS externo, pero puedes incluirlo si usas plugins visuales -->
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: linear-gradient(135deg, #1e3a8a, #9333ea, #3b82f6);
+  background-size: 400% 400%;
+  animation: gradientFlow 25s ease infinite;
+}
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+#calendar {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto;
+  min-height: 600px;
+}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+  border: none;
+}
+.btn-secondary {
+  background: #e5e7eb;
+  color: #111827;
+  border: none;
+}
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+.chat-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  background-size: 200% 200%;
+  animation: pulseGradient 6s ease infinite;
+  color: white;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 1000;
+}
+@keyframes pulseGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="calendar"></div>
+
+<div class="modal-overlay hidden" id="event-modal" aria-hidden="true">
+  <div class="modal-content">
+    <h5 id="modal-title"></h5>
+    <p id="modal-body"></p>
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="tarea_id" id="modal-tarea-id">
+      <div style="display:flex; justify-content:end; gap:10px; margin-top:20px;">
+        <a id="edit-link" class="btn btn-secondary">✏️ Editar</a>
+        <a id="delete-link" class="btn btn-danger">🗑️ Eliminar</a>
+        <button type="button" class="btn btn-secondary" id="close-modal">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{{ tareas_data|json_script:"tareas-json" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/locales-all.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const calendarEl = document.getElementById('calendar');
+  const raw = document.getElementById('tareas-json');
+
+  let tareas = [];
+  try {
+    const parsed = JSON.parse(raw.textContent);
+    tareas = Array.isArray(parsed) ? parsed : parsed.tareas || [];
+  } catch (err) {
+    console.error("❌ Error al parsear JSON:", err);
+  }
+
+  const events = tareas.map(t => ({
+    id: t.id,
+    title: t.title,
+    start: t.start,
+    extendedProps: {
+      descripcion: t.descripcion || "",
+      completada: t.completada
+    },
+    backgroundColor: t.completada ? "#10b981" : "#3b82f6",
+    borderColor: t.completada ? "#059669" : "#2563eb"
+  }));
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    locale: 'es',
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,listWeek'
+    },
+    events: events,
+    eventClick: function(info) {
+      const e = info.event;
+      const props = e.extendedProps || {};
+      const descripcion = props.descripcion ? props.descripcion.replace(/\n/g,'<br>') : '<em>Sin descripción</em>';
+      const estado = props.completada 
+        ? '<span class="text-green-600 font-semibold">✅ Completada</span>' 
+        : '<span class="text-yellow-600 font-semibold">⏳ Pendiente</span>';
+      const fecha = e.start 
+        ? `${e.start.toLocaleDateString('es-ES')} ${e.start.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}` 
+        : e.startStr;
+
+      document.getElementById('modal-title').innerText = e.title;
+      document.getElementById('modal-body').innerHTML = `
+        <strong>Fecha y hora:</strong> ${fecha}<br>
+        <strong>Estado:</strong> ${estado}<br><br>
+        ${descripcion}
+      `;
+      document.getElementById('modal-tarea-id').value = e.id;
+      document.getElementById('edit-link').href = `/dashboard/tareas/editar/${e.id}/`;
+      document.getElementById('delete-link').href = `/dashboard/tareas/eliminar/${e.id}/`;
+
+      const modal = document.getElementById('event-modal');
+      modal.classList.remove("hidden");
+      modal.style.display = "flex";
+      modal.setAttribute('aria-hidden', 'false');
+    }
+  });
+
+  calendar.render();
+
+  const closeModal = () => {
+    const modal = document.getElementById('event-modal');
+    modal.classList.add("hidden");
+    modal.style.display = "none";
+    modal.setAttribute('aria-hidden', 'true');
+  };
+
+  document.getElementById('close-modal').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+});
+</script>
+
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+{% endblock %}

@@ -1,0 +1,878 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <title>SchoolComms · Dashboard</title>
+
+  <!-- Iconos -->
+  <script src="https://kit.fontawesome.com/2d4f4c7f2b.js" crossorigin="anonymous" defer></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+
+  <style>
+    :root{
+      /* Brand */
+      --brand-1:#1e3a8a; --brand-2:#4338ca; --brand-3:#6d28d9;
+      --accent:#facc15;
+
+      /* Surface */
+      --bg-page:#f7fafc;
+      --panel:#ffffff; --panel-border:rgba(15,23,42,0.08);
+      --text:#0f172a; --muted:#6b7280; --text-invert:#ffffff;
+
+      /* State colors */
+      --green:#22c55e; --green-ink:#166534;
+      --yellow:#f59e0b; --yellow-ink:#854d0e;
+      --orange:#fb923c; --orange-ink:#9a3412;
+      --red:#ef4444; --red-ink:#7f1d1d;
+      --blue:#2563eb;
+
+      /* Shadows & radius */
+      --shadow-1:0 8px 24px rgba(0,0,0,.10);
+      --shadow-2:0 14px 40px rgba(0,0,0,.16);
+      --radius:16px; --radius-sm:12px;
+
+      /* Layout */
+      --container:1180px;            /* ancho máximo del contenido principal */
+      --nav-width:1280px;            /* ancho máximo del contenido del header (centrado en desktop) */
+      --nav-height:68px;
+      --font:Inter, ui-sans-serif, system-ui, -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+
+      /* Spacing */
+      --section-space:52px;
+      --panel-gap:28px;
+      --line-gap:10px;
+      --block-pad:22px;
+
+      /* Spacers */
+      --spacer-lg:72px;
+      --spacer-xl:92px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0; padding:0; width:100%}
+    html,body{overflow-x:hidden}
+
+    body{
+      font-family:var(--font);
+      background:var(--bg-page);
+      color:var(--text);
+      min-height:100vh;
+      display:flex; flex-direction:column;
+    }
+    a{text-decoration:none; color:inherit}
+    img{display:block; max-width:100%}
+
+    /* Contenedor general del contenido (no afecta al header) */
+    .container{ max-width:var(--container); margin:0 auto; padding:0 24px }
+
+    /* HEADER — fondo azul SIEMPRE a todo ancho, con contenido centrado en desktop */
+    header{
+      position:sticky; top:0; z-index:100;
+      left:0; right:0;
+      width:100vw; min-width:100vw;
+      background:linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3));
+      color:var(--text-invert);
+      box-shadow:var(--shadow-1);
+    }
+    header::before{
+      content:""; position:absolute; inset:0 -20px 0 -20px; z-index:-1; background:inherit;
+    }
+    /* Wrapper centrado para el contenido del header en pantallas de ordenador */
+    .header-wrap{
+      max-width:var(--nav-width);
+      margin:0 auto;
+      padding:0 24px;
+      width:100%;
+    }
+
+    .topbar{ height:var(--nav-height); display:flex; align-items:center }
+    .topbar-inner{
+      display:grid; grid-template-columns: auto 1fr auto; align-items:center; gap:16px; width:100%;
+    }
+
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:800; color:#fff; white-space:nowrap }
+    .brand .emoji{ font-size:1.35rem; line-height:1 }
+    .brand .name{ font-size:1.1rem; line-height:1 }
+
+    .nav{ display:flex; align-items:center; justify-content:center; gap:28px }
+    .nav a{
+      color:#fff; font-weight:700; padding:8px 4px; position:relative; white-space:nowrap; transition:color .18s ease;
+    }
+    .nav a::after{ content:""; position:absolute; left:0; bottom:-6px; height:2px; width:0; background:var(--accent); transition:width .18s ease }
+    .nav a:hover{ color:var(--accent) }
+    .nav a:hover::after{ width:100% }
+
+    .actions{ display:flex; align-items:center; gap:12px; justify-self:end }
+    .icon-btn{
+      width:40px; height:40px; border:none; background:transparent; color:#fff; position:relative;
+      display:flex; align-items:center; justify-content:center; font-size:1.1rem; cursor:pointer;
+    }
+    .notif-badge{
+      position:absolute; top:-5px; right:-5px; width:18px; height:18px; border-radius:50%;
+      background:#dc2626; color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:10px; font-weight:800; line-height:1; box-shadow:0 0 0 2px rgba(0,0,0,.12);
+    }
+    .avatar{
+      width:40px; height:40px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; font-weight:800; letter-spacing:.02em;
+      color:#fff; background:#4f46e5; border:2px solid rgba(255,255,255,.25); line-height:1;
+    }
+
+    /* Dropdowns (desktop por defecto bajo header a la derecha) */
+    .dropdown{
+      position:absolute; right:0; top:calc(var(--nav-height) + 6px);
+      width:280px; display:none; overflow:hidden;
+      background:#fff; border:1px solid #e5e7eb; border-radius:var(--radius-sm); box-shadow:var(--shadow-2);
+      z-index:110;
+    }
+    .dropdown .head{
+      padding:10px 12px; font-weight:800; color:#fff; background:#4f46e5;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .menu-list{ list-style:none; margin:0; padding:8px }
+    .menu-list li a{ display:flex; align-items:center; gap:10px; padding:10px; border-radius:10px; color:#111827 }
+    .menu-list li a:hover{ background:#f3f4f6 }
+    .menu-list li .logout{ color:#dc2626 }
+
+    /* En móviles, los dropdowns de notificaciones y perfil caen SIEMPRE bajo el bloque de acciones (campana + avatar), sin cortarse */
+    .actions-anchor{ position:relative }
+    @media (max-width:480px){
+      .header-wrap{ padding:0 16px }
+      .actions{ gap:8px }
+      .brand .name{ display:none }
+      .topbar-inner{ gap:8px }
+      .dropdown#notifDropdown,
+      .dropdown#userMenu{
+        position:fixed; left:auto; right:10px; top:calc(var(--nav-height) + 8px);
+        width:auto; max-width:calc(100vw - 20px); max-height:70vh; overflow:auto; border-radius:var(--radius-sm);
+      }
+    }
+
+    /* Burger + overlay móvil */
+    .burger{
+      width:40px; height:40px; border:none; cursor:pointer;
+      display:none; align-items:center; justify-content:center;
+      background:transparent; color:#fff; font-size:1.4rem;
+    }
+    @media (max-width:900px){
+      .topbar-inner{ grid-template-columns: auto 1fr auto }
+      .burger{ display:flex }
+      .nav{ display:none }
+      .brand{ justify-self:center }
+    }
+    .nav-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.55); backdrop-filter:blur(6px);
+      display:none; align-items:center; justify-content:center; z-index:120;
+    }
+    .nav-panel{
+      width:min(92vw,560px); border-radius:var(--radius-sm); padding:20px;
+      background:rgba(22,26,40,.94); color:#fff; box-shadow:var(--shadow-2);
+      animation:pop .22s ease-out;
+    }
+    @keyframes pop{ from{ opacity:0; transform:translateY(6px) scale(.98) } to{ opacity:1; transform:translateY(0) scale(1) } }
+    .nav-links{ display:grid; grid-template-columns:1fr; gap:12px }
+    .nav-links a{
+      display:block; padding:12px 14px; border-radius:12px; text-align:center; font-weight:700;
+      background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.18);
+      transition:transform .14s ease, box-shadow .14s ease, color .14s ease;
+    }
+    .nav-links a:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.28); color:var(--accent) }
+
+    /* MAIN */
+    main{ flex:1; padding:48px 0 }
+    .section{ padding-top:var(--section-space) }
+    .spacer-lg{ height:var(--spacer-lg) }
+    .spacer-xl{ height:var(--spacer-xl) }
+
+    .hero{ text-align:center; max-width:860px; margin:0 auto;}
+    .hero h1{ font-size:clamp(28px,3.6vw,40px); font-weight:900; margin:0 }
+    .hero p{ margin-top:12px; color:#475569 }
+    .update-line {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 18px; padding: 8px 14px; border-radius: 9999px;
+      background: #f1f5f9; color: #334155; font-size: .9rem; font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+    }
+    .update-line .icon { color: #2563eb; font-size: 1rem; }
+    .update-line .label { font-weight: 700; color: #1e293b; }
+    .update-line .value { font-weight: 600; color: #475569; }
+
+    /* Cards */
+    .cards {
+      display: grid; grid-template-columns: 1fr;
+      row-gap: var(--panel-gap); column-gap: var(--panel-gap);
+      align-items: stretch; grid-auto-rows: 1fr;
+    }
+    @media(min-width:640px){ .cards { grid-template-columns: repeat(2, 1fr) } }
+    @media(min-width:1024px){ .cards { grid-template-columns: repeat(4, 1fr) } }
+
+    .panel {
+      background: var(--panel); border: 1px solid var(--panel-border);
+      border-radius: var(--radius); box-shadow: var(--shadow-1);
+      padding: var(--block-pad); display: flex; flex-direction: column;
+      height: 100%; min-height: 180px;
+    }
+    .panel h3 {
+      margin: 0 0 14px; font-size: 1.1rem; font-weight: 800;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .list { list-style: none; margin: 0; padding: 0; flex-grow: 1; }
+    .list li {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 0;
+    }
+    .list li + li { margin-top: var(--line-gap); }
+    .list small { color: #475569; }
+
+    /* Paletas panel */
+    .panel.blue{ background:#e9f1ff; border-color:#cfe2ff } .panel.blue h3{ color:#1e3a8a }
+    .panel.green{ background:#eaf9f0; border-color:#cdebd8 } .panel.green h3{ color:#166534 }
+    .panel.yellow{ background:#fff7dc; border-color:#f4e6b5 } .panel.yellow h3{ color:#854d0e }
+    .panel.red{ background:#ffe9e9; border-color:#f3c9c9 } .panel.red h3{ color:#7f1d1d }
+
+    /* Indicadores */
+    .indicators{
+      display:grid; grid-template-columns:1fr; row-gap:var(--panel-gap); column-gap:var(--panel-gap);
+    }
+    @media(min-width:768px){ .indicators{ grid-template-columns:repeat(2,1fr) } }
+    .indicator-card{
+      background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+      box-shadow:var(--shadow-1); padding:var(--block-pad);
+    }
+    .progressbar{ width:100%; height:14px; border-radius:9999px; background:#e5e7eb; overflow:hidden }
+    .progressbar .fill{ height:100%; border-radius:9999px; background:#4f46e5; transition:width .5s ease }
+    .indicator-set{ display:flex; align-items:stretch; justify-content:space-between; gap:14px }
+    .indicator{
+      flex:1; background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:14px 10px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .indicator .value{ font-size:1.8rem; font-weight:800; line-height:1 }
+    .indicator .label{ margin-top:6px; font-size:.9rem; color:#475569 }
+
+    /* Rendimiento */
+    .perf-card{
+      background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+      box-shadow:var(--shadow-1); padding:var(--block-pad); max-width:980px; margin:0 auto;
+    }
+    .perf-title{ display:flex; align-items:center; gap:10px; color:#1e3a8a; font-weight:800; margin:0 0 14px }
+    .bar{ height:12px; background:#e5e7eb; border-radius:9999px; overflow:hidden }
+    .bar .meter{ height:12px; border-radius:9999px; transition:width .5s ease }
+    .perf-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px }
+    .perf-row + .perf-row{ margin-top:var(--line-gap) }
+
+    /* Actividad reciente */
+    .chart-card{
+      background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius);
+      box-shadow:var(--shadow-1); padding:var(--block-pad); max-width:980px; margin:0 auto;
+    }
+    #chart-container{ width:100%; height:clamp(240px,42vh,480px) }
+    #activityChart{ width:100% !important; height:100% !important }
+
+    /* Footer */
+    footer{ margin-top:56px; background:#0f172a; color:#e5e7eb; text-align:center; padding:16px 0 }
+
+    /* Chat FAB */
+    .fab{
+      position:fixed; bottom:24px; right:24px; width:64px; height:64px;
+      display:flex; align-items:center; justify-content:center; font-size:1.25rem;
+      color:#fff; background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+      border-radius:9999px; box-shadow:0 10px 30px rgba(59,130,246,.3); z-index:1000;
+    }
+
+    /* Menú usuario */
+    .menu-action{
+      display: inline-flex; align-items: center; gap: 8px;
+      width: 100%; padding: 10px 12px; border: 1px solid transparent; border-radius: 10px;
+      font-weight: 600; text-decoration: none; line-height: 1.2; cursor: pointer;
+      background: transparent; color: #111827;
+    }
+    .menu-action:hover{ background: #f3f4f6 }
+    .menu-action:focus{ outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.35) }
+    .menu-action:active{ transform: translateY(0.5px) }
+
+    .logout-btn{ color: #b91c1c; }
+    .logout-btn:hover{ background: #fee2e2; }
+    .logout-btn i{ color: #b91c1c }
+    .user-menu .menu-list li:last-child .logout-form .logout-btn{
+      border-top: 1px solid #e5e7eb; margin-top: 6px; padding-top: 12px;
+    }
+    .logout-btn i{ font-size: 0.95em; }
+    .logout-btn[disabled]{ opacity: 0.6; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<header role="banner">
+  <!-- Contenido del header centrado -->
+  <div class="header-wrap">
+    <div class="topbar" aria-label="Barra superior">
+      <div class="topbar-inner">
+        <!-- Título -->
+        <a href="{% url 'dashboard:inicio' %}" class="brand" aria-label="Inicio">
+          <span class="emoji">🏫</span>
+          <span class="name">SchoolComms</span>
+        </a>
+
+        <!-- Nav centrado -->
+        <nav class="nav" aria-label="Navegación principal">
+          <a href="{% url 'dashboard:inicio' %}">Inicio</a>
+          <a href="{% url 'dashboard:avisos' %}">Avisos</a>
+          <a href="{% url 'dashboard:compose_message' %}">Mensajes</a>
+          <a href="{% url 'dashboard:tareas' %}">Tareas</a>
+          <a href="{% url 'dashboard:incidencias_registrar' %}">Incidencias</a>
+        </nav>
+
+        <!-- Acciones: perfil + campana + hamburguesa (anclaje para dropdowns en móvil) -->
+        <div class="actions actions-anchor">
+          <div style="position:relative">
+            <button id="notifBtn" class="icon-btn" aria-haspopup="true" aria-controls="notifDropdown" aria-expanded="false" title="Notificaciones">
+              <i class="fa-solid fa-bell"></i>
+              {% with total=notificaciones|length %}
+                <span id="notif-count" class="notif-badge">{{ total }}</span>
+              {% endwith %}
+            </button>
+            <!-- Dropdown notificaciones -->
+            <div id="notifDropdown" class="dropdown" role="menu" aria-label="Notificaciones" style="width:320px">
+              <div class="head">
+                <strong>Notificaciones</strong>
+                <button id="clearNotifs" class="icon-btn" title="Marcar todas" style="color:#fff"><i class="fa-solid fa-check-double"></i></button>
+              </div>
+              <ul id="notif-list" class="menu-list">
+                {% for notif in notificaciones %}
+                  <li>
+                    <a href="{{ notif.url|default:'#' }}">
+                      <i class="fa-solid fa-circle-info" style="color:#4f46e5"></i>
+                      <strong>{{ notif.titulo }}</strong>
+                      <small style="display:block; color:#6b7280">{{ notif.contenido|truncatechars:60 }}</small>
+                      <small style="margin-left:auto; color:#9ca3af">{{ notif.creado|date:"d/m · H:i" }}</small>
+                    </a>
+                  </li>
+                {% empty %}
+                  <li><a href="#" style="color:#6b7280">Sin notificaciones</a></li>
+                {% endfor %}
+              </ul>
+              <div style="font-size:.78rem; text-align:center; color:#6b7280; padding:8px">Actualización en tiempo real</div>
+            </div>
+          </div>
+
+          <div style="position:relative">
+            <button id="userBtn" class="avatar" aria-haspopup="true" aria-controls="userMenu" aria-expanded="false" title="Menú de usuario">
+              {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+            </button>
+            <!-- Dropdown perfil (SIEMPRE cae bajo el avatar y el área de acciones en móvil) -->
+            <div id="userMenu" class="dropdown user-menu" role="menu" aria-label="Menú de usuario">
+              <div class="head"><span>{{ request.user.first_name|default:request.user.username }}</span></div>
+              <ul class="menu-list">
+                <li><a href="{% url 'core:perfil_usuario' request.user.id %}"><i class="fa-solid fa-user"></i> <span>Ver perfil</span></a></li>
+                <li>
+                  <form method="post" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="menu-action logout-btn">
+                      <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                      <span>Cerrar sesión</span>
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Burger (solo móvil) -->
+          <button id="menuToggle" class="burger" aria-label="Abrir menú" aria-controls="navOverlay" aria-expanded="false">☰</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay móvil -->
+  <div id="navOverlay" class="nav-overlay" aria-hidden="true">
+    <div class="nav-panel" role="dialog" aria-label="Navegación móvil">
+      <nav class="nav-links" aria-label="Navegación principal móvil">
+        <a href="{% url 'dashboard:inicio' %}">Inicio</a>
+        <a href="{% url 'dashboard:avisos' %}">Avisos</a>
+        <a href="{% url 'dashboard:compose_message' %}">Mensajes</a>
+        <a href="{% url 'dashboard:tareas' %}">Tareas</a>
+        <a href="{% url 'dashboard:incidencias_registrar' %}">Incidencias</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <!-- HERO -->
+    <section class="hero section" aria-label="Bienvenida">
+      <h1>¡Hola, {{ request.user.first_name|default:request.user.username }}!</h1>
+      <p>Tu espacio educativo. Tu impacto. Tu tablero.</p>
+      <div class="update-line">
+        <i class="fa-solid fa-clock icon"></i>
+        <span class="label">Última actualización:</span>
+        <span class="value">
+          {% if ultima_actualizacion %}
+            {{ ultima_actualizacion|date:"d M Y · H:i" }}
+          {% else %}—{% endif %}
+        </span>
+      </div>
+    </section>
+
+    <!-- CARDS -->
+    <section class="cards section" aria-label="Resumen principal">
+      <article class="panel blue" aria-labelledby="card-avisos">
+        <h3 id="card-avisos"><i class="fa-solid fa-clipboard-list"></i> Avisos</h3>
+        <ul class="list">
+          {% if avisos %}
+            {% for aviso in avisos %}
+              <li><span>{{ aviso.titulo }}</span><small>{{ aviso.fecha_publicacion|date:"d/m" }}</small></li>
+            {% endfor %}
+          {% else %}
+            <li class="italic">Sin avisos</li>
+          {% endif %}
+        </ul>
+      </article>
+
+      <article class="panel green" aria-labelledby="card-mensajes" id="dashboard-messages-card">
+        <h3 id="card-mensajes"><i class="fa-solid fa-envelope"></i> Mensajes</h3>
+        <ul class="list dash-msg-list">
+          {% if mensajes %}
+            {% for msg in mensajes %}
+              <li id="dash-msg-{{ msg.id }}" class="dash-msg-item unread">
+                <span>{{ msg.subject|default:"(sin asunto)" }}</span>
+                <small>{{ msg.created_at|date:"d/m" }}</small>
+                <form method="post"
+                      action="{% url 'dashboard:toggle_read' msg.id %}"
+                      class="d-inline"
+                      data-action="toggle-read">
+                  {% csrf_token %}
+                  <button type="submit" class="mini-btn" title="Marcar leído">✓</button>
+                </form>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="italic">Sin mensajes</li>
+          {% endif %}
+        </ul>
+      </article>
+
+      <article class="panel yellow" aria-labelledby="card-tareas">
+        <h3 id="card-tareas"><i class="fa-solid fa-check-circle"></i> Tareas</h3>
+        <ul class="list">
+          {% if tareas %}
+            {% for tarea in tareas %}
+              <li><span>{{ tarea.titulo }}</span><small>{{ tarea.fecha_entrega|date:"d/m" }}</small></li>
+            {% endfor %}
+          {% else %}
+            <li class="italic">Sin tareas</li>
+          {% endif %}
+        </ul>
+      </article>
+
+      <article class="panel red" aria-labelledby="card-incidencias">
+        <h3 id="card-incidencias"><i class="fa-solid fa-exclamation-triangle"></i> Incidencias</h3>
+        <ul class="list">
+          {% if incidencias %}
+            {% for inc in incidencias %}
+              <li><span>{{ inc.descripcion }}</span><small>{% if inc.fecha %}{{ inc.fecha|date:"d/m" }}{% else %}—{% endif %}</small></li>
+            {% endfor %}
+          {% else %}
+            <li class="italic">Sin incidencias</li>
+          {% endif %}
+        </ul>
+      </article>
+    </section>
+
+    <!-- ESPACIADOR EXPLÍCITO ENTRE CARDS Y INDICADORES -->
+    <div class="spacer-lg" aria-hidden="true"></div>
+
+    <!-- INDICADORES -->
+    <section class="indicators section" aria-label="Indicadores clave">
+      <article class="indicator-card" aria-labelledby="indicador-progreso">
+        <h3 id="indicador-progreso">📈 Progreso académico</h3>
+        {% with progreso=progreso_academico|default_if_none:0 %}
+          <div class="progressbar" aria-label="Progreso académico total">
+            <div class="fill" style="width: {{ progreso }}%;"></div>
+          </div>
+          <p style="margin-top:10px; text-align:right; font-weight:700; font-size:.95rem">{{ progreso }}% completado</p>
+        {% endwith %}
+      </article>
+
+      <article class="indicator-card" aria-labelledby="indicador-asistencia">
+        <h3 id="indicador-asistencia">📅 Asistencia total del curso</h3>
+        <div class="indicator-set">
+          <div class="indicator">
+            <p class="value" style="color:var(--green)">{{ total_presentes }}</p>
+            <p class="label">Asistencia</p>
+          </div>
+          <div class="indicator">
+            <p class="value" style="color:var(--red)">{{ total_ausentes }}</p>
+            <p class="label">Ausencias</p>
+          </div>
+          <div class="indicator">
+            <p class="value" style="color:var(--blue)">{{ asistencia_totales.dias_lectivos }}</p>
+            <p class="label">Clases</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ESPACIADOR EXPLÍCITO ENTRE INDICADORES Y RENDIMIENTO -->
+    <div class="spacer-lg" aria-hidden="true"></div>
+
+    <!-- Rendimiento académico -->
+    <section class="perf-card section" aria-label="Rendimiento académico detallado">
+      <h3 class="perf-title">📚 Rendimiento académico</h3>
+
+      {% if rendimiento_materias %}
+        <ul class="list" style="display:flex; flex-direction:column; gap:var(--line-gap)">
+          {% for m in rendimiento_materias %}
+            <li style="flex-direction:column; align-items:stretch; padding:0">
+              <div class="perf-row">
+                <span style="font-weight:600; color:#374151">{{ m.nombre }}</span>
+                <strong style="color:#1f2937">{{ m.nota }}%</strong>
+              </div>
+              <div class="bar">
+                <div class="meter" style="
+                  width: {{ m.nota }}%;
+                  background:
+                    {% if m.nota >= 90 %} var(--green)
+                    {% elif m.nota >= 75 %} var(--yellow)
+                    {% elif m.nota >= 60 %} var(--orange)
+                    {% else %} var(--red)
+                    {% endif %}
+                "></div>
+              </div>
+              <p style="margin-top:6px; font-size:.85rem; font-style:italic; color:
+                {% if m.nota >= 90 %} var(--green-ink)
+                {% elif m.nota >= 75 %} var(--yellow-ink)
+                {% elif m.nota >= 60 %} var(--orange-ink)
+                {% else %} var(--red-ink)
+                {% endif %}
+              ">
+                {% if m.nota >= 90 %}
+                  Gran dominio de la materia.
+                {% elif m.nota >= 75 %}
+                  Buen trabajo, sigue así.
+                {% elif m.nota >= 60 %}
+                  Puedes reforzar algunos conceptos.
+                {% else %}
+                  Necesitas apoyo adicional en esta materia.
+                {% endif %}
+              </p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="italic" style="color:var(--muted)">Sin datos disponibles por ahora.</p>
+      {% endif %}
+
+      <h4 class="perf-dynamic-title" style="font-weight:800; font-size:.95rem; color:#374151; margin:18px 0 8px">Vista dinámica</h4>
+      <ul id="materias-rotativas" class="list" style="display:flex; flex-direction:column; gap:var(--line-gap)"></ul>
+    </section>
+
+    <!-- ESPACIADOR EXPLÍCITO ENTRE RENDIMIENTO Y ACTIVIDAD -->
+    <div class="spacer-xl" aria-hidden="true"></div>
+
+    <!-- Actividad reciente -->
+    <section class="chart-card section" aria-label="Actividad reciente">
+      <h3>📊 Actividad reciente</h3>
+      <div id="chart-container"><canvas id="activityChart"></canvas></div>
+    </section>
+  </div>
+</main>
+
+<!-- Datos JSON -->
+<script id="materias-data" type="application/json">
+  {{ rendimiento_json|default:"[]"|safe }}
+</script>
+{{ activity_recent_labels|json_script:"activity-labels" }}
+{{ activity_recent_values|json_script:"activity-values" }}
+
+<!-- Footer -->
+<footer>
+  © {% now "Y" %} SchoolComms · Desarrollado por Barberá Digital Studio
+</footer>
+
+<!-- Chat FAB -->
+<a href="{% url 'dashboard:chat' request.user.id %}" class="fab" title="Abrir chat">💬</a>
+
+<!-- Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  /* Overlay móvil */
+  const menuToggle = document.getElementById('menuToggle');
+  const navOverlay = document.getElementById('navOverlay');
+  const openOverlay = () => { navOverlay.style.display='flex'; navOverlay.setAttribute('aria-hidden','false'); menuToggle?.setAttribute('aria-expanded','true'); };
+  const closeOverlay = () => { navOverlay.style.display='none'; navOverlay.setAttribute('aria-hidden','true'); menuToggle?.setAttribute('aria-expanded','false'); };
+  if (menuToggle){ menuToggle.addEventListener('click', () => { navOverlay.style.display==='flex' ? closeOverlay() : openOverlay(); }); }
+  if (navOverlay){
+    navOverlay.addEventListener('click', (e) => { const panel = e.target.closest('.nav-panel'); if (!panel) closeOverlay(); });
+    closeOverlay();
+  }
+
+  /* Dropdowns */
+  const notifBtn = document.getElementById('notifBtn');
+  const notifDropdown = document.getElementById('notifDropdown');
+  const clearNotifs = document.getElementById('clearNotifs');
+  const notifCount = document.getElementById('notif-count');
+  const notifList = document.getElementById('notif-list');
+
+  const userBtn = document.getElementById('userBtn');
+  const userMenu = document.getElementById('userMenu');
+
+  const togglePanel = (btn, panel) => {
+    const open = panel.style.display === 'block';
+    panel.style.display = open ? 'none' : 'block';
+    btn?.setAttribute('aria-expanded', (!open).toString());
+  };
+  const closePanels = () => {
+    if (notifDropdown){ notifDropdown.style.display='none'; notifBtn?.setAttribute('aria-expanded','false'); }
+    if (userMenu){ userMenu.style.display='none'; userBtn?.setAttribute('aria-expanded','false'); }
+  };
+
+  /* Notificaciones: fijo en móvil bajo header, absoluto en desktop */
+  if (notifBtn && notifDropdown) {
+    const openNotif = (e) => {
+      e?.stopPropagation();
+      closePanels();
+      const willOpen = notifDropdown.style.display !== 'block';
+      notifDropdown.style.display = willOpen ? 'block' : 'none';
+      notifBtn.setAttribute('aria-expanded', willOpen.toString());
+
+      if (willOpen) {
+        const isMobile = window.innerWidth <= 480;
+        if (isMobile) {
+          notifDropdown.style.position = 'fixed';
+          notifDropdown.style.top = `calc(${getComputedStyle(document.documentElement).getPropertyValue('--nav-height')} + 8px)`;
+          notifDropdown.style.right = '10px';
+          notifDropdown.style.left = 'auto';
+          notifDropdown.style.maxWidth = 'calc(100vw - 20px)';
+          notifDropdown.style.width = 'auto';
+          notifDropdown.style.maxHeight = '70vh';
+          notifDropdown.style.overflow = 'auto';
+        } else {
+          notifDropdown.style.position = 'absolute';
+          notifDropdown.style.top = 'calc(var(--nav-height) + 6px)';
+          notifDropdown.style.right = '0';
+          notifDropdown.style.left = 'auto';
+          notifDropdown.style.width = '320px';
+          notifDropdown.style.maxHeight = '';
+          notifDropdown.style.overflow = '';
+        }
+      }
+    };
+    notifBtn.addEventListener('click', openNotif);
+    window.addEventListener('resize', () => {
+      if (notifDropdown.style.display === 'block') {
+        openNotif(new Event('click'));
+      }
+    });
+  }
+
+  /* Perfil: fijo en móvil bajo header, ABSOLUTAMENTE bajo el avatar/área de acciones; absoluto en desktop */
+  if (userBtn && userMenu) {
+    const openUser = (e) => {
+      e?.stopPropagation();
+      closePanels();
+      const willOpen = userMenu.style.display !== 'block';
+      userMenu.style.display = willOpen ? 'block' : 'none';
+      userBtn.setAttribute('aria-expanded', willOpen.toString());
+
+      if (willOpen) {
+        const isMobile = window.innerWidth <= 480;
+        if (isMobile) {
+          userMenu.style.position = 'fixed';
+          userMenu.style.top = `calc(${getComputedStyle(document.documentElement).getPropertyValue('--nav-height')} + 8px)`;
+          userMenu.style.right = '10px';
+          userMenu.style.left = 'auto';
+          userMenu.style.maxWidth = 'calc(100vw - 20px)';
+          userMenu.style.width = 'auto';
+          userMenu.style.maxHeight = '70vh';
+          userMenu.style.overflow = 'auto';
+        } else {
+          userMenu.style.position = 'absolute';
+          userMenu.style.top = 'calc(var(--nav-height) + 6px)';
+          userMenu.style.right = '0';
+          userMenu.style.left = 'auto';
+          userMenu.style.width = '280px';
+          userMenu.style.maxHeight = '';
+          userMenu.style.overflow = '';
+        }
+      }
+    };
+    userBtn.addEventListener('click', openUser);
+    window.addEventListener('resize', () => {
+      if (userMenu.style.display === 'block') {
+        openUser(new Event('click'));
+      }
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const withinNotif = notifBtn?.contains(e.target) || notifDropdown?.contains(e.target);
+    const withinUser = userBtn?.contains(e.target) || userMenu?.contains(e.target);
+    const withinOverlay = navOverlay?.contains(e.target) || menuToggle?.contains(e.target);
+    if (!withinNotif && !withinUser && !withinOverlay) closePanels();
+  });
+
+  /* Marcar todas las notificaciones */
+  if (clearNotifs) {
+    clearNotifs.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fetch("{% url 'dashboard:marcar_notificaciones' %}", {
+        method:"POST",
+        headers:{ "X-CSRFToken":"{{ csrf_token }}", "Content-Type":"application/json" },
+        body:JSON.stringify({})
+      })
+      .then(res => res.ok ? res.json() : Promise.reject(new Error('HTTP ' + res.status)))
+      .then(data => {
+        if (data.success) {
+          if (notifCount) notifCount.textContent = "0";
+          if (notifList) notifList.innerHTML = '<li><a href="#" style="color:#6b7280">Sin notificaciones</a></li>';
+          notifDropdown.style.display='none';
+          notifBtn?.setAttribute('aria-expanded','false');
+        }
+      })
+      .catch(err => console.error('Error al marcar notificaciones:', err));
+    });
+  }
+
+  /* Rendimiento dinámico (rotativo) */
+  const materiasDataEl = document.getElementById('materias-data');
+  const materiasContainer = document.getElementById('materias-rotativas');
+  if (materiasDataEl && materiasContainer) {
+    let materias = [];
+    try { materias = JSON.parse(materiasDataEl.textContent || '[]'); } catch(e){ console.error(e); }
+    const msgFor = (nota) => nota>=90?'Gran dominio de la materia.':nota>=75?'Buen trabajo, sigue así.':nota>=60?'Puedes reforzar algunos conceptos.':'Necesitas apoyo adicional en esta materia.';
+    let index = 0;
+    const actualizarNotas = () => { materias = materias.map(m => ({ ...m, nota: Math.max(50, Math.min(100, m.nota + (Math.floor(Math.random()*5)-2))) })); };
+    const render = () => {
+      materiasContainer.innerHTML = '';
+      const grupo = materias.slice(index, index+4);
+      grupo.forEach(m => {
+        const color = m.nota>=90?'var(--green)':m.nota>=75?'var(--yellow)':m.nota>=60?'var(--orange)':'var(--red)';
+        const ink = m.nota>=90?'var(--green-ink)':m.nota>=75?'var(--yellow-ink)':m.nota>=60?'var(--orange-ink)':'var(--red-ink)';
+        materiasContainer.insertAdjacentHTML('beforeend', `
+          <li style="display:flex; flex-direction:column; gap:8px; padding:6px 0">
+            <div class="perf-row">
+              <span style="font-weight:600; color:#374151">${m.nombre}</span>
+              <strong style="color:#1f2937">${m.nota}%</strong>
+            </div>
+            <div class="bar"><div class="meter" style="width:${m.nota}%; background:${color}"></div></div>
+            <p style="font-size:.85rem; font-style:italic; color:${ink}">${msgFor(m.nota)}</p>
+          </li>
+        `);
+      });
+      index = (index + 4) % (materias.length || 1);
+    };
+    if (materias.length) { render(); setInterval(() => { actualizarNotas(); render(); }, 7000); }
+  }
+
+  /* Gráfica actividad */
+  const labelsEl = document.getElementById('activity-labels');
+  const valuesEl = document.getElementById('activity-values');
+  const chartCanvas = document.getElementById('activityChart');
+  if (labelsEl && valuesEl && chartCanvas) {
+    let labels=[], values=[];
+    try { labels = JSON.parse(labelsEl.textContent || '[]'); values = JSON.parse(valuesEl.textContent || '[]'); } catch(e){ console.error('Error al parsear datos de actividad:', e); }
+    if (labels.length && values.length) {
+      const ctx = chartCanvas.getContext('2d');
+      const chart = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels,
+          datasets:[{
+            label:'Tareas completadas',
+            data:values,
+            fill:true,
+            backgroundColor:'rgba(79,70,229,0.18)',
+            borderColor:'rgba(79,70,229,1)',
+            borderWidth:2,
+            tension:0.3,
+            pointRadius:4,
+            pointHoverRadius:6
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{ display:false } },
+          layout:{ padding: { top: 8, left: 4, right: 4, bottom: 4 } },
+          scales:{
+            y:{ beginAtZero:true, ticks:{ stepSize:1, precision:0 } },
+            x:{ ticks:{ autoSkip:true, maxRotation:0 } }
+          }
+        }
+      });
+      const ro = new ResizeObserver(() => { chart.resize(); });
+      ro.observe(document.getElementById('chart-container'));
+      window.addEventListener('orientationchange', () => chart.resize());
+    }
+  }
+});
+
+/* Delegación global: marcar leído (dashboard, inbox, detalle) */
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("submit", async (e) => {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (form.dataset.action !== "toggle-read") return;
+    e.preventDefault();
+
+    const btn = form.querySelector("button[type='submit']");
+    if (btn) btn.disabled = true;
+
+    const tokenInput = form.querySelector("input[name='csrfmiddlewaretoken']");
+    const csrf = tokenInput ? tokenInput.value : "{{ csrf_token }}";
+
+    try {
+      const res = await fetch(form.action, {
+        method: "POST",
+        headers: csrf ? { "X-CSRFToken": csrf } : {}
+      });
+      if (res.status === 204) {
+        const li = form.closest("li");
+        const tr = form.closest("tr");
+        const detail = document.getElementById("msg-detail");
+
+        if (li) {
+          li.remove();
+          updateMessagesCardState();
+        } else if (tr) {
+          tr.remove();
+          const tbody = document.querySelector(".inbox-table tbody");
+          if (tbody && tbody.querySelectorAll("tr").length === 0){
+            const empty = document.createElement("tr");
+            empty.innerHTML = `<td colspan="5" class="text-center text-muted py-4"><i class="fas fa-inbox-open"></i> No tienes mensajes en tu bandeja.</td>`;
+            tbody.appendChild(empty);
+          }
+        } else if (detail) {
+          detail.remove();
+          window.location.href = "{% url 'dashboard:inbox' %}";
+        }
+      } else {
+        if (btn) btn.disabled = false;
+      }
+    } catch (err) {
+      if (btn) btn.disabled = false;
+      console.error("Error al marcar leído:", err);
+    }
+  });
+});
+
+/* Card de mensajes: ocúltalo si se queda vacío (sin contador aquí) */
+function updateMessagesCardState(){
+  const card = document.getElementById("dashboard-messages-card");
+  const list = document.querySelector(".dash-msg-list");
+  if (!card || !list) return;
+  const remaining = list.querySelectorAll(".dash-msg-item").length;
+  if (remaining === 0){
+    card.classList.add("hidden");
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear aviso · SchoolComms{% endblock %}
+
+{% block extra_head %}
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: linear-gradient(135deg, #f43f5e, #8b5cf6, #3b82f6);
+    background-size: 400% 400%;
+    animation: gradientFlow 20s ease infinite;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+  }
+
+  .form-wrapper {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    padding: 50px 40px;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: fadeInUp 0.8s ease;
+    color: #f9fafb;
+  }
+
+  .form-wrapper h2 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #fff;
+  }
+
+  .form-wrapper label {
+    font-weight: 600;
+    margin-top: 20px;
+    display: block;
+    color: #e5e7eb;
+  }
+
+  .form-wrapper input[type="text"],
+  .form-wrapper textarea {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: none;
+    margin-top: 8px;
+    font-size: 1rem;
+    color: #111;
+    background-color: #f9fafb;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .form-wrapper button {
+    margin-top: 40px;
+    background: linear-gradient(to right, #9333ea, #3b82f6);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: bold;
+    border: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    font-size: 1.1rem;
+  }
+
+  .form-wrapper button:hover {
+    background: linear-gradient(to right, #7c3aed, #2563eb);
+    transform: scale(1.02);
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  footer {
+    margin-top: auto;
+  }
+
+  .chat-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  background-size: 200% 200%;
+  animation: pulseGradient 6s ease infinite;
+  color: white;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chat-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+@keyframes pulseGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+  <h2>➕ Crear nuevo aviso</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      {{ form.titulo.label_tag }}
+      {{ form.titulo }}
+    </div>
+    <div class="mb-3">
+      {{ form.contenido.label_tag }}
+      {{ form.contenido }}
+    </div>
+    <div class="mb-3">
+      {{ form.destinatarios.label_tag }}
+      {{ form.destinatarios }}
+    </div>
+    <button type="submit">Publicar aviso</button>
+  </form>
+</div>
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+{% endblock %}

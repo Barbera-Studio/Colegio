@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}Panel de Incidencias · SchoolComms{% endblock %}
+
+{% block content %}
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Inter, system-ui, sans-serif;
+    background: linear-gradient(135deg, #1e3a8a, #9333ea, #3b82f6);
+    background-size: 400% 400%;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    animation: gradientFlow 25s ease infinite;
+    color: #f9fafb;
+  }
+
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  main {
+    min-height: 100vh;
+    padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .titulo-wrapper {
+    background: white;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    max-width: 680px;
+    margin-bottom: 4rem;
+    transform: rotate(-1deg);
+  }
+
+  .titulo {
+    font-size: 2.75rem;
+    font-weight: 900;
+    text-align: center;
+    background: linear-gradient(90deg, #fbbf24, #60a5fa, #a78bfa);
+    background-size: 300% 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: shineTitle 8s ease infinite;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  @keyframes shineTitle {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .estado-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 2rem;
+  }
+
+  .estado-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .estado-col h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .panel-card {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .panel-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  }
+
+  .badge {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .badge.tecnica { background: #3b82f6; color: white; }
+  .badge.academica { background: #10b981; color: white; }
+  .badge.convivencia { background: #f59e0b; color: white; }
+  .badge.pendiente { background: #f87171; color: white; }
+  .badge.revision { background: #facc15; color: black; }
+  .badge.resuelta { background: #22c55e; color: white; }
+
+  .estado-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-top: 12px;
+  }
+
+  .estado-btn:hover {
+    background: linear-gradient(90deg, #0ea5e9, #2563eb);
+    transform: scale(1.05);
+  }
+
+  .chat-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  background-size: 200% 200%;
+  animation: pulseGradient 6s ease infinite;
+  color: white;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chat-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+@keyframes pulseGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+</style>
+
+<main>
+  <div class="titulo-wrapper">
+    <h1 class="titulo">📋 Incidencias agrupadas por estado</h1>
+  </div>
+
+  <div class="estado-grid">
+    <div class="estado-col">
+      {% if pendientes %}
+        <h2 class="text-2xl font-bold text-pink-300">🕒 Pendientes</h2>
+        {% for i in pendientes %}
+          <div class="panel-card">
+            <h3 class="text-xl font-semibold text-white mb-1">{{ i.titulo }}</h3>
+            <p class="text-gray-200 mb-2">{{ i.descripcion|truncatewords:15 }}</p>
+            <div class="flex gap-2 mb-1">
+              <span class="badge {{ i.categoria }}">{{ i.get_categoria_display }}</span>
+              <span class="badge pendiente">Pendiente</span>
+            </div>
+            <div class="text-xs text-gray-300">📅 {{ i.fecha_reporte|date:"d/m/Y H:i" }}</div>
+            <a href="{% url 'dashboard:cambiar_estado_incidencia' i.id %}" class="estado-btn">🛠 Cambiar estado</a>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="estado-col">
+      {% if en_revision %}
+        <h2 class="text-2xl font-bold text-yellow-300">🔍 En revisión</h2>
+        {% for i in en_revision %}
+          <div class="panel-card">
+            <h3 class="text-xl font-semibold text-white mb-1">{{ i.titulo }}</h3>
+            <p class="text-gray-200 mb-2">{{ i.descripcion|truncatewords:15 }}</p>
+            <div class="flex gap-2 mb-1">
+              <span class="badge {{ i.categoria }}">{{ i.get_categoria_display }}</span>
+              <span class="badge revision">En revisión</span>
+            </div>
+            <div class="text-xs text-gray-300">📅 {{ i.fecha_reporte|date:"d/m/Y H:i" }}</div>
+            <a href="{% url 'dashboard:cambiar_estado_incidencia' i.id %}" class="estado-btn">🛠 Cambiar estado</a>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="estado-col">
+      {% if resueltas %}
+        <h2 class="text-2xl font-bold text-green-300">✅ Resueltas</h2>
+        {% for i in resueltas %}
+          <div class="panel-card">
+            <h3 class="text-xl font-semibold text-white mb-1">{{ i.titulo }}</h3>
+            <p class="text-gray-200 mb-2">{{ i.descripcion|truncatewords:15 }}</p>
+            <div class="flex gap-2 mb-1">
+              <span class="badge {{ i.categoria }}">{{ i.get_categoria_display }}</span>
+              <span class="badge resuelta">Resuelta</span>
+            </div>
+            <div class="text-xs text-green-200">✅ {{ i.fecha_resolucion|date:"d/m/Y H:i" }}</div>
+            <a href="{% url 'dashboard:cambiar_estado_incidencia' i.id %}" class="estado-btn">🛠 Cambiar estado</a>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</main>
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+{% endblock %}

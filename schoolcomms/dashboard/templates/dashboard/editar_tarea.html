@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar tarea · SchoolComms{% endblock %}
+
+{% block extra_head %}
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: Inter, system-ui, sans-serif;
+    background: linear-gradient(135deg, #1e3a8a, #9333ea, #3b82f6);
+    background-size: 400% 400%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    animation: gradientFlow 25s ease infinite;
+    color: #111827;
+  }
+
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .form-container h3 {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    background: linear-gradient(to right, #9333ea, #3b82f6);
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  label {
+    display: block;
+    margin-top: 16px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  input[type="text"], input[type="date"], input[type="time"], textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #f9fafb;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .btn-group {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    text-align: center;
+  }
+
+  .btn-primary {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .btn-danger {
+    background-color: #ef4444;
+    color: white;
+  }
+
+  .btn:hover {
+    opacity: 0.92;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="form-container">
+    <h3>✏️ Editar tarea</h3>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Título -->
+      <label for="titulo">Título</label>
+      <input type="text" name="titulo" id="titulo" value="{{ tarea.titulo }}">
+
+      <!-- Descripción -->
+      <label for="descripcion">Descripción</label>
+      <textarea name="descripcion" id="descripcion">{{ tarea.descripcion }}</textarea>
+
+      <!-- Fecha de entrega -->
+      <label for="fecha_entrega">Fecha de entrega</label>
+      <input type="date" name="fecha_entrega" id="fecha_entrega" value="{{ tarea.fecha_entrega|date:'Y-m-d' }}">
+
+      <!-- Hora -->
+      <label for="hora">Hora</label>
+      <input type="time" name="hora" id="hora" value="{{ tarea.hora|time:'H:i' }}">
+
+      <!-- Completada -->
+      <div class="checkbox-row">
+        <input type="checkbox" name="completada" id="completada" {% if tarea.completada %}checked{% endif %}>
+        <label for="completada" style="margin: 0;">Marcar como completada</label>
+      </div>
+
+      <div class="btn-group">
+        <button type="submit" class="btn btn-primary">💾 Guardar cambios</button>
+        <a href="{% url 'dashboard:eliminar_tarea' tarea.id %}" class="btn btn-danger"
+           onclick="return confirm('¿Estás seguro de que quieres eliminar esta tarea? Esta acción no se puede deshacer.')">
+          🗑️ Eliminar
+        </a>
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}

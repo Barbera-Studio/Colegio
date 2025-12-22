@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Detalle del aviso · SchoolComms{% endblock %}
+
+{% block extra_head %}
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: linear-gradient(135deg, #3b82f6, #9333ea, #f43f5e);
+    background-size: 400% 400%;
+    animation: gradientFlow 25s ease infinite;
+    display: flex;
+    flex-direction: column;
+    color: #f9fafb;
+  }
+
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .detalle-wrapper {
+    max-width: 720px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 50px 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: fadeInUp 0.8s ease;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .detalle-wrapper h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-align: center;
+    background: linear-gradient(90deg, #fbbf24, #60a5fa, #a78bfa);
+    background-size: 300% 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: shineTitle 8s ease infinite;
+  }
+
+  @keyframes shineTitle {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .detalle-meta {
+    font-size: 0.9rem;
+    color: #d1d5db;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .detalle-contenido {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #f3f4f6;
+    margin-bottom: 40px;
+    white-space: pre-line;
+  }
+
+  .volver-btn {
+    display: block;
+    text-align: center;
+    background: linear-gradient(to right, #10b981, #3b82f6);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  .volver-btn:hover {
+    background: linear-gradient(to right, #059669, #2563eb);
+    transform: scale(1.05);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detalle-wrapper">
+  <h1>{{ aviso.titulo }}</h1>
+  <div class="detalle-meta">📅 Publicado el {{ aviso.fecha_publicacion|date:"d/m/Y" }}</div>
+  <div class="detalle-contenido">{{ aviso.contenido }}</div>
+  <a href="{% url 'dashboard:avisos' %}" class="volver-btn">← Volver a avisos</a>
+</div>
+{% endblock %}

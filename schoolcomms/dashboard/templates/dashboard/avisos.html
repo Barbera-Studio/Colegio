@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  body {
+    background: linear-gradient(135deg, #f43f5e, #8b5cf6, #3b82f6);
+    background-size: 300% 300%;
+    animation: gradientFlow 15s ease infinite;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  main {
+    flex-grow: 1;
+  }
+
+  .avisos-wrapper {
+    max-width: 960px;
+    margin: 80px auto;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: fadeInUp 0.8s ease;
+    color: #fff;
+    position: relative;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .avisos-wrapper h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+    background: linear-gradient(90deg, #fbbf24, #60a5fa, #a78bfa);
+    background-size: 300% 300%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: shineTitle 8s ease infinite;
+  }
+
+  @keyframes shineTitle {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .crear-aviso-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+    animation: floatUp 2s ease-in-out infinite alternate;
+  }
+
+  .crear-aviso-btn {
+    background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6);
+    background-size: 300% 300%;
+    animation: pulseGradient 6s ease infinite;
+    color: white;
+    padding: 14px 28px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
+    text-decoration: none;
+    transition: transform 0.3s ease;
+    position: relative;
+  }
+
+  .crear-aviso-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.7);
+  }
+
+  @keyframes pulseGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes floatUp {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+  }
+
+  .search-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 30px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    color: #111;
+  }
+
+  button {
+    background-color: #6366f1;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: bold;
+    border: none;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #4f46e5;
+  }
+
+  .aviso-card {
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .aviso-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .aviso-card h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .aviso-card p {
+    font-size: 1rem;
+    color: #f3f4f6;
+    margin-bottom: 12px;
+  }
+
+  .aviso-meta {
+    font-size: 0.85rem;
+    color: #d1d5db;
+    margin-bottom: 10px;
+  }
+
+  .aviso-actions a {
+    margin-right: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .aviso-actions a:hover {
+    text-decoration: underline;
+  }
+
+  .ver { color: #93c5fd; }
+  .editar { color: #fde68a; }
+  .eliminar { color: #fca5a5; }
+
+  .no-avisos {
+    text-align: center;
+    font-style: italic;
+    color: #e5e7eb;
+    margin-top: 2rem;
+  }
+
+  .chat-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  background-size: 200% 200%;
+  animation: pulseGradient 6s ease infinite;
+  color: white;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chat-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+@keyframes pulseGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>
+
+<div class="avisos-wrapper">
+  <h1>📢 Avisos Escolares</h1>
+
+    <div class="crear-aviso-wrapper">
+      <a href="{% url 'dashboard:crear_aviso' %}" class="crear-aviso-btn">➕ Crear aviso</a>
+    </div>
+
+  <form method="get" class="search-bar">
+    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar avisos...">
+    <button type="submit">Buscar</button>
+  </form>
+
+  {% if avisos %}
+    {% for aviso in avisos %}
+      <div class="aviso-card">
+        <h2>{{ aviso.titulo }}</h2>
+        <div class="aviso-meta">Publicado el {{ aviso.fecha_publicacion|date:"d/m/Y H:i" }}</div>
+        <p>{{ aviso.contenido|truncatewords:30 }}</p>
+        <div class="aviso-actions">
+          <a href="{% url 'dashboard:detalle_aviso' aviso.id %}" class="ver">👀 Ver</a>
+          {% if request.user.is_staff or request.user == aviso.autor %}
+            <a href="{% url 'dashboard:editar_aviso' aviso.id %}" class="editar">✏️ Editar</a>
+            <a href="{% url 'dashboard:eliminar_aviso' aviso.id %}" class="eliminar">🗑 Eliminar</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="no-avisos">❌ No hay avisos disponibles.</p>
+  {% endif %}
+</div>
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+{% endblock %}

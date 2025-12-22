@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sesión cerrada</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden transform transition duration-500 hover:scale-105 animate-fadeIn text-center">
+    <!-- Cabecera -->
+    <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-6 text-white">
+      <h2 class="text-3xl font-bold tracking-wide">👋 Hasta pronto</h2>
+      <p class="text-sm mt-2 opacity-90">Has cerrado sesión en SchoolComms</p>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-8">
+      <h1 class="text-xl font-semibold text-gray-900 mb-3">Sesión cerrada correctamente</h1>
+      <p class="text-gray-600 mb-6">
+        Tu sesión se ha cerrado de forma segura. Gracias por usar SchoolComms.
+      </p>
+      <div class="flex flex-col space-y-3">
+        <a href="{% url 'login' %}" 
+           class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
+          Iniciar sesión de nuevo
+        </a>
+        <a href="/" 
+           class="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
+          Ir al inicio
+        </a>
+      </div>
+    </div>
+
+    <!-- Pie -->
+    <div class="px-6 py-4 bg-gray-50 text-center text-sm text-gray-600">
+      ¿Necesitas ayuda? 
+      <a href="/contacto" class="font-semibold text-indigo-600 hover:underline">Contáctanos</a>
+    </div>
+  </div>
+
+  <style>
+    @keyframes fadeIn { 
+      from {opacity: 0; transform: translateY(30px);} 
+      to {opacity: 1; transform: translateY(0);} 
+    }
+    .animate-fadeIn { animation: fadeIn 0.8s ease-out; }
+  </style>
+
+</body>
+</html>

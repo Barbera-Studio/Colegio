@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Eliminar tarea · SchoolComms{% endblock %}
+
+{% block extra_head %}
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Inter, system-ui, sans-serif;
+    background: linear-gradient(135deg, #1e3a8a, #9333ea, #3b82f6);
+    background-size: 400% 400%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    animation: gradientFlow 25s ease infinite;
+    color: #111827;
+  }
+
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 120px); /* Ajusta según altura de navbar + footer */
+    padding: 20px;
+  }
+
+  .confirm-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .confirm-box h2 {
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    color: #ef4444;
+  }
+
+  .confirm-box p {
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
+
+  .btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-danger {
+    background-color: #ef4444;
+    color: white;
+  }
+
+  .btn-secondary {
+    background-color: #e5e7eb;
+    color: #111827;
+  }
+
+  .btn:hover {
+    opacity: 0.9;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+  <div class="confirm-box">
+    <h2>🗑️ Eliminar tarea</h2>
+    <p>¿Estás seguro de que quieres eliminar la tarea <strong>{{ tarea.titulo }}</strong>? Esta acción no se puede deshacer.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="btn-group">
+        <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+        <a href="{% url 'dashboard:editar_tarea' tarea.id %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}

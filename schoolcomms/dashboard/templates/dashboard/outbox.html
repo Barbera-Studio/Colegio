@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de salida · SchoolComms{% endblock %}
+
+{% block content %}
+<style>
+  .chat-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  background-size: 200% 200%;
+  animation: pulseGradient 6s ease infinite;
+  color: white;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chat-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+@keyframes pulseGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary"><i class="fas fa-paper-plane"></i> Bandeja de salida</h2>
+    <a href="{% url 'dashboard:compose_message' %}" class="btn btn-outline-primary shadow-sm">
+      <i class="fas fa-plus-circle"></i> Redactar mensaje
+    </a>
+  </div>
+
+  <div class="card border-0 shadow rounded-4">
+    <div class="card-body p-0">
+      <table class="table table-hover table-responsive-md mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>👤 Para</th>
+            <th>📌 Asunto</th>
+            <th>⏰ Fecha</th>
+            <th>📊 Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if mensajes %}
+            {% for msg in mensajes %}
+              <tr>
+                <td>
+                  {% if msg.receiver and msg.receiver.username %}
+                    {{ msg.receiver.username }}
+                  {% else %}
+                    <span class="text-muted">Desconocido</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if msg.receiver and msg.receiver.id %}
+                    <a href="{% url 'dashboard:chat' msg.receiver.id %}" class="text-decoration-none text-dark">
+                      {{ msg.subject|default:"(sin asunto)" }}
+                    </a>
+                  {% else %}
+                    <span class="text-muted">{{ msg.subject|default:"(sin asunto)" }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ msg.created_at|date:"d/m/Y H:i" }}</td>
+                <td>
+                  {% if msg.is_read %}
+                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Leído</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">
+                <i class="fas fa-paper-plane"></i> No has enviado ningún mensaje todavía.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+{% endblock %}

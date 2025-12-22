@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de entrada · SchoolComms{% endblock %}
+
+{% block content %}
+<style>
+  /* Animación sutil para eliminar filas */
+  .fade-out { animation: fadeOut .18s ease forwards; }
+  @keyframes fadeOut { to { opacity: 0; transform: translateY(4px); } }
+
+  /* Botón flotante de chat */
+  .chat-fab {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    background-size: 200% 200%;
+    animation: pulseGradient 6s ease infinite;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .chat-fab:hover { transform: scale(1.1); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+  @keyframes pulseGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+</style>
+
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary"><i class="fas fa-inbox"></i> Bandeja de entrada</h2>
+    <a href="{% url 'dashboard:compose_message' %}" class="btn btn-outline-primary shadow-sm">
+      <i class="fas fa-paper-plane"></i> Nuevo mensaje
+    </a>
+  </div>
+
+  <div class="card border-0 shadow rounded-4">
+    <div class="card-body p-0">
+      <!-- IMPORTANT: class inbox-table para que el script global gestione estado vacío -->
+      <table class="table table-hover table-responsive-md mb-0 inbox-table">
+        <thead class="table-light">
+          <tr>
+            <th>👤 De</th>
+            <th>📌 Asunto</th>
+            <th>⏰ Fecha</th>
+            <th>📊 Estado</th>
+            <th>⚙️ Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if mensajes %}
+            {% for msg in mensajes %}
+              <tr class="{% if not msg.is_read %}table-warning fw-semibold{% endif %}">
+                <td>
+                  {{ msg.sender.get_full_name|default:msg.sender.username|default:"Desconocido" }}
+                </td>
+                <td>
+                  <a href="{% url 'dashboard:mensaje_detalle' msg.id %}" class="text-decoration-none text-dark">
+                    {{ msg.subject|default:"(sin asunto)" }}
+                  </a>
+                </td>
+                <td>{{ msg.created_at|date:"d/m/Y H:i" }}</td>
+                <td>
+                  {% if msg.is_read %}
+                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Leído</span>
+                  {% else %}
+                    <span class="badge bg-danger"><i class="fas fa-envelope"></i> No leído</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <!-- Form de toggle con delegación de eventos: data-action="toggle-read" -->
+                  <form method="post"
+      action="{% url 'dashboard:toggle_read' msg.id %}"
+      class="d-inline"
+      data-action="toggle-read">
+  {% csrf_token %}
+  <button type="submit"
+          class="btn btn-sm {% if msg.is_read %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
+    {% if msg.is_read %}
+      <i class="fas fa-envelope-open"></i> No leído
+    {% else %}
+      <i class="fas fa-check"></i> Marcar leído
+    {% endif %}
+  </button>
+</form>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">
+                <i class="fas fa-inbox-open"></i> No tienes mensajes en tu bandeja.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+{% endblock %}

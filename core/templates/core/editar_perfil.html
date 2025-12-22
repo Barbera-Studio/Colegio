@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .perfil-wrapper {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3a8a, #9333ea, #ec4899);
+    background-size: 300% 300%;
+    animation: gradientShift 12s ease infinite;
+    padding: 40px 20px;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .perfil-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 50px 40px;
+    width: 100%;
+    max-width: 550px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    animation: fadeInUp 0.8s ease;
+    color: #f9fafb;
+    position: relative;
+    overflow: visible;
+  }
+
+  .perfil-card h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    font-weight: 700;
+    color: #fff;
+    position: relative;
+    z-index: 1;
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #d1d5db;
+  }
+
+  /* Estilos UNIFORMES para todos los campos sin depender de filtros (evita el error add_class) */
+  .perfil-card .form-group input:not([type="file"]),
+  .perfil-card .form-group select,
+  .perfil-card .form-group textarea {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 14px;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  .perfil-card .form-group input:not([type="file"])::placeholder,
+  .perfil-card .form-group textarea::placeholder { color: #e5e7eb; opacity: .8; }
+  .perfil-card .form-group input:not([type="file"]):focus,
+  .perfil-card .form-group select:focus,
+  .perfil-card .form-group textarea:focus {
+    outline: none;
+    background: rgba(255,255,255,0.25);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.35);
+  }
+
+  /* INPUT FILE accesible y 100% responsive */
+  input[type="file"]{
+    width: 100%;
+    max-width: 100%;
+    color: #fff;
+    font-size: 0.95rem;
+  }
+  input[type="file"]::-webkit-file-upload-button{
+    background: rgba(255,255,255,0.25);
+    color: #0f172a;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-right: 12px;
+    cursor: pointer;
+  }
+  /* Permite que el texto del nombre del archivo se ajuste y no se corte */
+  input[type="file"]{
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Componente file-input personalizado */
+  .file-input{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 10px;
+  }
+  .file-input .file-button{
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+  .file-input .file-button:focus{
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.35);
+  }
+  .file-input .file-name{
+    color: #e5e7eb;
+    font-size: 0.95rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.3;
+    /* Claves para que NO se corte en pantallas pequeñas */
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  /* Oculta visualmente el input nativo manteniendo accesibilidad */
+  .file-input input[type="file"]{
+    position: absolute;
+    inset: 0;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .btn-save {
+    background: linear-gradient(90deg, #10b981, #059669);
+    border: none;
+    padding: 14px 30px;
+    font-weight: bold;
+    border-radius: 14px;
+    width: 100%;
+    transition: all 0.3s ease;
+    color: #fff;
+    font-size: 1.1rem;
+  }
+  .btn-save:hover {
+    background: linear-gradient(90deg, #059669, #047857);
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .text-danger.small {
+    font-size: 0.8rem;
+    color: #f87171 !important;
+  }
+
+  .chat-fab {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    background-size: 200% 200%;
+    animation: pulseGradient 6s ease infinite;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .chat-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+  @keyframes pulseGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Micro-ajustes para pantallas muy pequeñas (≤ 360px) */
+  @media (max-width: 360px){
+    .perfil-card{ padding: 36px 22px }
+    .file-input{ gap: 10px; padding: 8px }
+    .file-input .file-button{ padding: 8px 12px }
+    .file-input .file-name{ font-size: 0.92rem }
+  }
+</style>
+
+<div class="perfil-wrapper">
+  <div class="perfil-card">
+    <h2>⚙️ Edita tu perfil</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% for field in form %}
+        {% if field.field.widget.input_type == "file" %}
+          <div class="form-group">
+            <label class="form-label">{{ field.label }}</label>
+
+            <!-- Componente file-input accesible y 100% responsive -->
+            <div class="file-input">
+              <button type="button" class="file-button" data-role="pick-file">
+                <i class="fa-solid fa-upload" aria-hidden="true"></i> Seleccionar archivo
+              </button>
+              <span class="file-name" data-role="file-name">Ningún archivo seleccionado</span>
+              {{ field }}
+            </div>
+
+            {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="form-group">
+            <label class="form-label">{{ field.label }}</label>
+            <!-- Sin filtros: los estilos se aplican por selector CSS arriba -->
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit" class="btn-save mt-3">💾 Guardar cambios</button>
+    </form>
+  </div>
+</div>
+
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+
+<script>
+  // Mejora progresiva del input file: refleja el nombre del archivo y evita cortes de texto en móviles
+  document.addEventListener('DOMContentLoaded', () => {
+    const fileWrappers = document.querySelectorAll('.file-input');
+
+    fileWrappers.forEach(wrapper => {
+      const realInput = wrapper.querySelector('input[type="file"]');
+      const pickBtn = wrapper.querySelector('[data-role="pick-file"]');
+      const nameSpan = wrapper.querySelector('[data-role="file-name"]');
+
+      if (!realInput || !pickBtn || !nameSpan) return;
+
+      // Apertura del selector nativo
+      pickBtn.addEventListener('click', () => realInput.click());
+
+      // Cuando se selecciona archivo, muestra su nombre (o varios)
+      realInput.addEventListener('change', () => {
+        const files = Array.from(realInput.files || []);
+        if (!files.length) {
+          nameSpan.textContent = 'Ningún archivo seleccionado';
+          return;
+        }
+        nameSpan.textContent = files.map(f => f.name).join(', ');
+      });
+
+      // Accesibilidad: foco visible al tabular
+      realInput.addEventListener('focus', () => {
+        pickBtn.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.35)';
+      });
+      realInput.addEventListener('blur', () => {
+        pickBtn.style.boxShadow = 'none';
+      });
+    });
+  });
+</script>
+{% endblock %}

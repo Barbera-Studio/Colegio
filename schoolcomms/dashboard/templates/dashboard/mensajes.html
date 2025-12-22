@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .chat-fab {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    background-size: 200% 200%;
+    animation: pulseGradient 6s ease infinite;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .chat-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+
+  @keyframes pulseGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+</style>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+      <div class="card border-0 shadow-lg rounded-4 animate__animated animate__fadeIn">
+        <div class="card-header text-white d-flex justify-content-between align-items-center"
+             style="background: linear-gradient(90deg, #3B82F6, #10B981);">
+          <h4 class="mb-0"><i class="fas fa-envelope"></i> Enviar mensaje privado</h4>
+          <i class="fas fa-paper-plane fa-lg"></i>
+        </div>
+        <div class="card-body p-4">
+          <form method="post" action="{% url 'dashboard:compose_message' %}" novalidate>
+            {% csrf_token %}
+
+            <!-- Campo receptor (usa el formulario Django) -->
+            <div class="mb-3">
+              <label for="id_receiver" class="form-label fw-bold">👤 Destinatario</label>
+              {{ form.receiver }}
+              <div class="form-text">Selecciona el usuario al que deseas enviar el mensaje.</div>
+            </div>
+
+            <!-- Campo asunto -->
+            <div class="mb-3">
+              <label for="id_subject" class="form-label fw-bold">📌 Asunto</label>
+              {{ form.subject }}
+              <div class="form-text">Máximo 200 caracteres.</div>
+            </div>
+
+            <!-- Campo contenido -->
+            <div class="mb-3">
+              <label for="id_content" class="form-label fw-bold">📝 Contenido del mensaje</label>
+              {{ form.content }}
+              <div class="text-muted mt-1">
+                <span id="charCount">0</span>/5000 caracteres
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between mt-4">
+              <a href="{% url 'dashboard:inbox' %}" class="btn btn-outline-secondary">
+                ⬅️ Volver
+              </a>
+              <button type="submit" class="btn btn-success px-4 shadow-sm">
+                📧 Enviar mensaje
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {% if messages %}
+        <div class="mt-4">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+              <i class="fas fa-info-circle me-2"></i> {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  const textarea = document.getElementById("id_content");
+  const counter = document.getElementById("charCount");
+  if (textarea) {
+    textarea.addEventListener("input", function() {
+      counter.textContent = this.value.length;
+    });
+  }
+</script>
+
+<a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
+{% endblock %}

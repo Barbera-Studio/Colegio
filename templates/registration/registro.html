@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registro | Comunicaciones escolares{% endblock %}
+
+{% block extra_head %}
+<style>
+  html, body { height: 100%; }
+  .page-wrap { min-height: 100%; display: flex; flex-direction: column; }
+  .centered { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; background: radial-gradient(1000px 500px at 10% 10%, rgba(99,102,241,.12), transparent), radial-gradient(800px 400px at 90% 20%, rgba(236,72,153,.12), transparent), linear-gradient(135deg, #eef2ff, #fdf2f8); }
+
+  .card {
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    border: 1px solid rgba(99,102,241,0.12);
+    padding: 28px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
+    animation: fadeInUp .45s ease-out;
+  }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(18px); } to { transform: translateY(0); } }
+
+  .title { font-size: 1.75rem; font-weight: 800; color: #111827; letter-spacing: -0.02em; }
+  .subtitle { font-size: .98rem; color: #4b5563; margin-bottom: 1rem; }
+
+  .form-stack { display: grid; gap: 20px; }
+  .field { display: grid; gap: 8px; }
+  .label { font-size: .92rem; font-weight: 600; color: #374151; }
+
+  .input, .field input, .field select, .field textarea {
+    width: 100%;
+    padding: .675rem .8rem;
+    border: 1px solid #e5e7eb;
+    border-radius: .75rem;
+    background-color: #fff;
+    transition: border-color .2s, box-shadow .2s, background-color .2s, color .2s;
+    font-size: .95rem; line-height: 1.4; box-sizing: border-box;
+  }
+  .input:focus, .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: #4f46e5; box-shadow: 0 0 0 4px rgba(79,70,229,0.15); outline: none;
+  }
+  .error-field {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 4px rgba(220,38,38,0.12) !important;
+  }
+
+  .input-wrap { position: relative; }
+  .toggle-pwd {
+    position: absolute; right: .5rem; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none; color: #6b7280; cursor: pointer;
+    padding: .25rem .375rem; border-radius: .375rem;
+  }
+  .toggle-pwd:hover { color: #111827; background: rgba(17,24,39,0.06); }
+  .toggle-pwd:focus { outline: none; box-shadow: 0 0 0 3px rgba(79,70,229,0.25); }
+
+  .hint { font-size: .82rem; color: #6b7280; }
+  .error { font-size: .86rem; color: #b91c1c; }
+  .alert { border: 1px solid #fecaca; background: #fef2f2; color: #7f1d1d; padding: .75rem; border-radius: .5rem; }
+
+  .requirements { display: grid; gap: 6px; margin-top: 6px; }
+  .req-item { font-size: .82rem; display: inline-flex; align-items: center; gap: .4rem; color: #6b7280; }
+  .req-item.ok { color: #10b981; }
+  .req-dot { width: 10px; height: 10px; border-radius: 999px; background: #e5e7eb; }
+  .req-item.ok .req-dot { background: #10b981; }
+
+  .btn-primary {
+    background: linear-gradient(90deg,#2563eb,#4f46e5);
+    color: #fff; padding: .95rem 1rem; border-radius: .75rem; font-weight: 700;
+    width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    box-shadow: 0 10px 24px rgba(79,70,229,.35);
+    transition: transform .08s, box-shadow .2s, filter .2s;
+  }
+  .btn-primary:hover { filter: brightness(1.03); box-shadow: 0 14px 28px rgba(79,70,229,.45); }
+  .btn-primary:active { transform: translateY(1px) scale(.995); }
+
+  .divider { display:flex; align-items:center; gap:.75rem; margin:1.25rem 0; }
+  .divider::before, .divider::after { content:""; flex:1; height:1px; background: #e5e7eb; }
+
+  .terms { display: inline-flex; align-items: center; gap: .5rem; font-size: .9rem; color: #374151; }
+  .terms input { margin: 0; width: 16px; height: 16px; }
+  #terms-error { margin-top: 6px; }
+
+  .support { display:flex; justify-content: space-between; align-items: center; margin-top: .5rem; }
+  .support a { font-size: .86rem; color: #4f46e5; text-decoration: none; }
+  .support a:hover { text-decoration: underline; }
+
+  .dark .centered { background: radial-gradient(1000px 500px at 10% 10%, rgba(99,102,241,.22), transparent), radial-gradient(800px 400px at 90% 20%, rgba(236,72,153,.22), transparent), linear-gradient(135deg, #0b1020, #121212); }
+  .dark .card { background: rgba(17,24,39,.82); border-color: rgba(99,102,241,0.22); }
+  .dark .title { color: #e5e7eb; }
+  .dark .subtitle { color: #9ca3af; }
+  .dark .label { color: #e5e7eb; }
+  .dark .input, .dark .field input { background: rgba(31,41,55,.9); border-color: rgba(75,85,99,.55); color: #e5e7eb; }
+  .dark .hint { color: #9ca3af; }
+  .dark .divider::before, .dark .divider::after { background: rgba(75,85,99,.6); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap" role="main">
+  <div class="centered">
+    <section class="card" aria-labelledby="registro-heading">
+      <h1 id="registro-heading" class="title">Crear cuenta</h1>
+      <p class="subtitle">Accede a avisos, tareas y mensajes desde tu panel.</p>
+
+      {% if form.non_field_errors %}
+        <div class="alert mb-4" role="alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <form method="post" novalidate id="registro-form" class="form-stack" aria-describedby="form-help">
+        {% csrf_token %}
+
+        <!-- Correo electrónico -->
+        <div class="field">
+          <label class="label" for="{{ form.email.id_for_label }}">Correo electrónico</label>
+          {{ form.email }}
+          <div id="email-empty" class="error" style="display:none;" role="alert">Este campo es obligatorio y debe ser válido.</div>
+          {% if form.email.errors %}
+            <div class="error" role="alert">{{ form.email.errors|striptags }}</div>
+          {% else %}
+            <p class="hint">Usa un correo que controles: lo necesitarás para recuperar tu contraseña.</p>
+          {% endif %}
+        </div>
+
+        <!-- Usuario -->
+        <div class="field">
+          <label class="label" for="{{ form.username.id_for_label }}">Usuario</label>
+          {{ form.username }}
+          <div id="username-empty" class="error" style="display:none;" role="alert">Este campo es obligatorio.</div>
+          {% if form.username.errors %}
+            <div class="error" role="alert">{{ form.username.errors|striptags }}</div>
+          {% else %}
+            <p class="hint">Letras, números y guiones bajos.</p>
+          {% endif %}
+        </div>
+
+        <!-- Contraseña -->
+        <div class="field">
+          <label class="label" for="{{ form.password1.id_for_label }}">Contraseña</label>
+          <div class="input-wrap">
+            {{ form.password1 }}
+            <button type="button"
+                    class="toggle-pwd"
+                    data-target-name="password1"
+                    aria-label="Mostrar u ocultar contraseña"
+                    aria-pressed="false"
+                    title="Mostrar/Ocultar contraseña">👁️</button>
+          </div>
+          <div id="password1-empty" class="error" style="display:none;" role="alert">Este campo es obligatorio.</div>
+          <div id="password1-too-short" class="error" style="display:none;" role="alert">
+            La contraseña debe tener al menos 8 caracteres.
+          </div>
+          <div id="password1-weak" class="error" style="display:none;" role="alert">
+            La contraseña debe incluir minúsculas, mayúsculas, números y símbolos.
+          </div>
+
+          {% if form.password1.errors %}
+            <div class="error" role="alert">{{ form.password1.errors|striptags }}</div>
+          {% else %}
+            <div class="requirements" aria-live="polite">
+              <div class="req-item" id="req-length"><span class="req-dot"></span> Mínimo 8 caracteres</div>
+              <div class="req-item" id="req-lower"><span class="req-dot"></span> Al menos una minúscula</div>
+              <div class="req-item" id="req-upper"><span class="req-dot"></span> Al menos una mayúscula</div>
+              <div class="req-item" id="req-number"><span class="req-dot"></span> Al menos un número</div>
+              <div class="req-item" id="req-symbol"><span class="req-dot"></span> Al menos un símbolo (ej. !@#$%&*)</div>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="field">
+          <label class="label" for="{{ form.password2.id_for_label }}">Confirmar contraseña</label>
+          <div class="input-wrap">
+            {{ form.password2 }}
+            <button type="button"
+                    class="toggle-pwd"
+                    data-target-name="password2"
+                    aria-label="Mostrar u ocultar confirmación de contraseña"
+                    aria-pressed="false"
+                    title="Mostrar/Ocultar confirmación">👁️</button>
+          </div>
+          <div id="password2-empty" class="error" style="display:none;" role="alert">Este campo es obligatorio.</div>
+          <div id="password-mismatch" class="error" style="display:none;" role="alert">
+            Las contraseñas no coinciden.
+          </div>
+          {% if form.password2.errors %}
+            <div class="error" role="alert">{{ form.password2.errors|striptags }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Términos -->
+        <div class="terms">
+          {{ form.terms }}
+          <label for="{{ form.terms.id_for_label }}">Acepto los términos y condiciones y la política de privacidad.</label>
+        </div>
+        <div id="terms-error" class="error" style="display:none;" role="alert">
+          Debes aceptar los términos y condiciones y la política de privacidad para continuar.
+        </div>
+
+        <!-- Acción principal -->
+        <button type="submit" class="btn-primary" aria-label="Crear cuenta">+ Crear cuenta</button>
+
+        <!-- Ayudas y login -->
+        <div class="support">
+          <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+          <a href="{% url 'login' %}" class="font-medium">Inicia sesión</a>
+        </div>
+
+        <!-- Divider y texto -->
+        <div class="divider"><span class="text-xs text-gray-400">o</span></div>
+        <p class="text-sm text-gray-600 text-center" id="form-help">
+          Puedes completar tu perfil después en
+          <a href="{% url 'core:perfil' %}" class="text-indigo-600 hover:text-indigo-700 font-medium">Perfil</a>.
+        </p>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Mostrar/ocultar contraseñas con accesibilidad
+  (function() {
+    const toggles = document.querySelectorAll('.toggle-pwd');
+    function toggleField(field, btn) {
+      const isText = field.type === 'text';
+      field.type = isText ? 'password' : 'text';
+      const pressed = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', pressed ? 'false' : 'true');
+      btn.textContent = pressed ? '👁️' : '🙈';
+    }
+    toggles.forEach(btn => {
+      const name = btn.getAttribute('data-target-name');
+      const field = document.querySelector(`[name="${name}"]`);
+      if (!field) return;
+      btn.addEventListener('click', () => toggleField(field, btn));
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+      });
+    });
+  })();
+
+  // Validación fuerte: email, vacíos, mínimo 8, mezcla de tipos, coincidencia y términos
+  (function() {
+    const form = document.getElementById('registro-form');
+
+    const email = document.querySelector('[name="email"]');
+    const username = document.querySelector('[name="username"]');
+    const password1 = document.querySelector('[name="password1"]');
+    const password2 = document.querySelector('[name="password2"]');
+    const terms = document.getElementById('{{ form.terms.id_for_label }}') || document.getElementById('terms') || document.querySelector('[name="terms"]');
+
+    const emailEmpty = document.getElementById('email-empty');
+    const usernameEmpty = document.getElementById('username-empty');
+    const password1Empty = document.getElementById('password1-empty');
+    const password1TooShort = document.getElementById('password1-too-short');
+    const password1Weak = document.getElementById('password1-weak');
+    const password2Empty = document.getElementById('password2-empty');
+    const mismatch = document.getElementById('password-mismatch');
+    const termsError = document.getElementById('terms-error');
+
+    const reqLen = document.getElementById('req-length');
+    const reqLower = document.getElementById('req-lower');
+    const reqUpper = document.getElementById('req-upper');
+    const reqNumber = document.getElementById('req-number');
+    const reqSymbol = document.getElementById('req-symbol');
+
+    function setError(input, show, msgEl) {
+      if (!input) return;
+      if (show) {
+        input.classList.add('error-field');
+        if (msgEl) msgEl.style.display = 'block';
+      } else {
+        input.classList.remove('error-field');
+        if (msgEl) msgEl.style.display = 'none';
+      }
+    }
+
+    function validateEmpty(el, msgEl) {
+      const empty = !el || el.value.trim() === '';
+      setError(el, empty, msgEl);
+      return !empty;
+    }
+
+    function markRequirement(el, ok) {
+      if (!el) return;
+      el.classList.toggle('ok', !!ok);
+    }
+
+    function checkStrength(val) {
+      const len = val.length >= 8;
+      const lower = /[a-z]/.test(val);
+      const upper = /[A-Z]/.test(val);
+      const number = /[0-9]/.test(val);
+      const symbol = /[^A-Za-z0-9]/.test(val);
+      markRequirement(reqLen, len);
+      markRequirement(reqLower, lower);
+      markRequirement(reqUpper, upper);
+      markRequirement(reqNumber, number);
+      markRequirement(reqSymbol, symbol);
+      return { len, lower, upper, number, symbol };
+    }
+
+    function validateEmail() {
+      if (!email) return false;
+      const val = email.value.trim();
+      const ok = val !== '' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      setError(email, !ok, emailEmpty);
+      return ok;
+    }
+
+    function validateMinLength() {
+      const tooShort = !password1 || password1.value.length < 8;
+      setError(password1, tooShort, password1TooShort);
+      return !tooShort;
+    }
+
+    function validateComposition() {
+      const val = (password1 && password1.value) ? password1.value : '';
+      const { len, lower, upper, number, symbol } = checkStrength(val);
+      const strong = len && lower && upper && number && symbol;
+      if (password1Weak) {
+        password1Weak.style.display = strong ? 'none' : (val.length ? 'block' : 'none');
+      }
+      if (val.length && !strong) password1.classList.add('error-field');
+      else if (strong) password1.classList.remove('error-field');
+      return strong;
+    }
+
+    function validateMismatch() {
+      const hasBoth = !!(password1 && password1.value) && !!(password2 && password2.value);
+      const mismatchOn = hasBoth && password1.value !== password2.value;
+      if (mismatch) mismatch.style.display = mismatchOn ? 'block' : 'none';
+      if (mismatchOn) {
+        password1.classList.add('error-field');
+        password2.classList.add('error-field');
+      } else {
+        if (password1 && password1.value.trim() !== '') password1.classList.remove('error-field');
+        if (password2 && password2.value.trim() !== '') password2.classList.remove('error-field');
+      }
+      return !mismatchOn;
+    }
+
+    function validateTerms() {
+      const termsEl = document.querySelector('[name="terms"]');
+      const ok = !!(termsEl ? termsEl.checked : (terms && terms.checked));
+      if (termsError) termsError.style.display = ok ? 'none' : 'block';
+      return ok;
+    }
+
+    // Blur: marcar vacíos
+    [[email, emailEmpty], [username, usernameEmpty], [password1, password1Empty], [password2, password2Empty]].forEach(([el, msg]) => {
+      if (!el) return;
+      el.addEventListener('blur', () => validateEmpty(el, msg));
+    });
+
+    // Input: feedback en tiempo real
+    if (email) {
+      email.addEventListener('input', () => validateEmail());
+    }
+    if (password1) {
+      password1.addEventListener('input', () => {
+        setError(password1, password1.value.trim() === '', password1Empty);
+        if (password1TooShort) password1TooShort.style.display = password1.value.length > 0 && password1.value.length < 8 ? 'block' : 'none';
+        validateComposition();
+        validateMismatch();
+      });
+    }
+    if (password2) {
+      password2.addEventListener('input', () => {
+        setError(password2, password2.value.trim() === '', password2Empty);
+        validateMismatch();
+      });
+    }
+    const termsEl = document.querySelector('[name="terms"]');
+    if (termsEl) {
+      termsEl.addEventListener('change', () => validateTerms());
+    }
+
+    // Enviar: validar todo
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        const okEmail = validateEmail();
+        const okUser = validateEmpty(username, usernameEmpty);
+        const okP1Empty = validateEmpty(password1, password1Empty);
+        const okP1Len = validateMinLength();
+        const okP1Comp = validateComposition();
+        const okP2Empty = validateEmpty(password2, password2Empty);
+        const okMatch = validateMismatch();
+        const okTerms = validateTerms();
+
+        const valid = okEmail && okUser && okP1Empty && okP1Len && okP1Comp && okP2Empty && okMatch && okTerms;
+        if (!valid) {
+          e.preventDefault();
+          if (!okEmail) { email && email.focus(); return; }
+          if (!okUser) { username && username.focus(); return; }
+          if (!okP1Empty || !okP1Len || !okP1Comp) { password1 && password1.focus(); return; }
+          if (!okP2Empty || !okMatch) { password2 && password2.focus(); return; }
+          if (!okTerms) { (termsEl || terms) && (termsEl || terms).focus(); return; }
+        }
+      });
+    }
+
+    // Auto-scroll al primer error del servidor si existe
+    const serverError = document.querySelector('.alert, .error');
+    if (serverError) serverError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  })();
+</script>
+{% endblock %}

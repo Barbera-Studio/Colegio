@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo mensaje · SchoolComms{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="fw-bold text-primary mb-4"><i class="fas fa-edit"></i> Redactar mensaje</h2>
+
+  <div class="card shadow border-0 rounded-4">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">👤 Destinatario</label>
+          {{ form.receiver }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">📌 Asunto</label>
+          {{ form.subject }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">✉️ Contenido</label>
+          {{ form.content }}
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

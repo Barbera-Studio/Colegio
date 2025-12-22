@@ -1,0 +1,341 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat · {{ other_user.get_full_name|default:other_user.username }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <style>
+    :root{
+      /* Paleta y tokens */
+      --bg: #f7fafc; --panel: #ffffff; --panel-2: #f9fafb; --border: #e5e7eb;
+      --text: #0f172a; --muted: #64748b; --brand: #2563eb;
+      --success: #10b981; --info-bg: #e0f2fe; --info-tx: #0c4a6e; --warn-bg: #fef3c7; --warn-tx: #92400e;
+      --radius: 14px; --radius-sm: 10px; --shadow-1: 0 8px 30px rgba(2,6,23,0.08); --shadow-2: 0 3px 14px rgba(2,6,23,0.07);
+
+      /* Layout fluidos */
+      --wrap: clamp(12px, 2vw, 20px);
+      --sidebar-w: clamp(250px, 26vw, 320px);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+      /* Tipografía */
+      --fs-0: clamp(0.86rem, 1.8vw, 0.97rem);
+      --fs-1: clamp(0.96rem, 2vw, 1.08rem);
+      --fs-2: clamp(1.08rem, 2.4vw, 1.26rem);
+      --fs-3: clamp(1.18rem, 2.8vw, 1.38rem);
+    }
+
+    *{ box-sizing: border-box }
+    html, body{
+      margin: 0; padding: 0; background: var(--bg); color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      height: 100%;
+    }
+    a{ color: var(--brand); text-decoration: none }
+    a:hover{ text-decoration: underline }
+
+    .page{
+      max-width: 1440px; margin: 0 auto;
+      padding: calc(var(--wrap) + var(--safe-top)) var(--wrap) calc(var(--wrap) + var(--safe-bottom));
+      display: grid; gap: var(--wrap);
+    }
+
+    /* Topbar */
+    .topbar{
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+      background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow-2); padding: 10px 12px; min-height: 52px;
+      position: sticky; top: var(--safe-top); z-index: 9;
+    }
+    .topbar-title{ font-weight: 800; color: #0f172a; font-size: var(--fs-3) }
+    .topbar-actions{ display: flex; gap: 10px; flex-wrap: wrap }
+    .btn{
+      display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px;
+      border-radius: var(--radius-sm); font-weight: 700; border: 1px solid var(--border);
+      background: var(--panel); color: #1f2937; cursor: pointer; text-decoration: none;
+    }
+    .btn:hover{ background: var(--panel-2) }
+    .btn-ghost{ background: var(--panel) }
+
+    /* Shell del chat */
+    .chat{
+      display: grid; grid-template-columns: var(--sidebar-w) 1fr;
+      height: calc(100vh - (var(--wrap)*2) - var(--safe-top) - var(--safe-bottom));
+      min-height: 560px; border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; box-shadow: var(--shadow-1); background: var(--panel-2);
+    }
+
+    /* Sidebar (desktop/tablet) */
+    .sidebar{
+      background: var(--panel); border-right: 1px solid var(--border);
+      display: grid; grid-template-rows: auto 1fr;
+    }
+    .sidebar-header{
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+    }
+    .sidebar-title{ margin: 0; font-size: var(--fs-2); font-weight: 800; color: #0f172a }
+    .sidebar-body{ overflow-y: auto; padding: 10px }
+    .contact-link{ text-decoration: none }
+    .contact{
+      display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center;
+      padding: 10px; border-radius: var(--radius-sm); transition: background 0.18s ease;
+    }
+    .contact:hover{ background: #f1f5f9 }
+    .contact strong{ font-size: var(--fs-1); color: #0f172a }
+    .contact small{ font-size: var(--fs-0); color: var(--muted) }
+    .avatar-img{ width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border) }
+    .avatar-fallback{ width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; text-transform: uppercase }
+
+    /* Columna principal con flex vertical (header + messages + input) */
+    .chat-col{ display: flex; flex-direction: column; min-width: 0 }
+
+    /* Header profesional: dos filas, aire y jerarquía */
+    .chat-header{
+      display: grid; grid-template-columns: 1fr; gap: 12px;
+      padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--panel);
+      position: sticky; top: 0; z-index: 8;
+    }
+    /* Fila selector */
+    .selector-row{ display: flex; align-items: center; gap: 12px }
+    .contact-select{
+      width: 100%; max-width: 420px; min-height: 42px;
+      padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: var(--panel); color: var(--text); font-size: var(--fs-1);
+      box-shadow: inset 0 1px 0 rgba(2,6,23,0.02);
+    }
+    /* Fila principal */
+    .main-row{
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
+    }
+    .chat-header .avatar-img, .chat-header .avatar-fallback{ width: 46px; height: 46px }
+    .header-title{ display: grid; gap: 4px; min-width: 0 }
+
+    /* Línea 1 EN MISMA LÍNEA: icono/texto + nombre con truncado */
+    .line-1{
+      display: flex; align-items: center; gap: 6px;
+      font-weight: 800; color: #0f172a; font-size: var(--fs-2);
+      white-space: nowrap; overflow: hidden;
+    }
+    .line-1 .name{
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .line-2{ font-size: var(--fs-0); color: var(--muted) }
+    .online{ color: #16a34a; font-weight: 700 }
+    .header-actions{ display: flex; gap: 10px; flex-wrap: wrap }
+
+    /* Mensajes */
+    .chat-messages{
+      flex: 1; display: flex; flex-direction: column; gap: 12px;
+      padding: 14px; overflow-y: auto; background: linear-gradient(135deg, #e0f2fe, #fdf2f8);
+      scroll-padding-bottom: 100px;
+    }
+    .message{
+      max-width: clamp(72%, 42vw, 70%);
+      padding: 12px 16px; border-radius: 14px; font-size: var(--fs-1);
+      line-height: 1.5; word-break: break-word; box-shadow: 0 1px 2px rgba(2,6,23,0.06);
+    }
+    .message.sent{ align-self: flex-end; background: var(--info-bg); color: var(--info-tx) }
+    .message.received{ align-self: flex-start; background: var(--warn-bg); color: var(--warn-tx) }
+    .meta{ font-size: var(--fs-0); color: var(--muted); margin-bottom: 6px; display: flex; gap: 8px }
+
+    /* Input pegado abajo */
+    .chat-input{
+      margin-top: auto; border-top: 1px solid var(--border); background: var(--panel);
+      padding: 12px 14px;
+    }
+    .input-row{ display: grid; grid-template-columns: 1fr auto; gap: 10px }
+    .text-input{
+      width: 100%; border: 1px solid #d1d5db; border-radius: var(--radius-sm);
+      padding: 12px 14px; font-size: 16px; background: #f8fafc; color: var(--text);
+      outline: none; transition: all 0.18s ease; box-shadow: inset 0 1px 0 rgba(2,6,23,0.02);
+    }
+    .text-input:focus{ border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37,99,235,0.25), inset 0 1px 0 rgba(2,6,23,0.02); background: #fff }
+    .send-btn{
+      background: var(--success); color: #fff; border: none; padding: 10px 16px;
+      font-weight: 800; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.18s ease;
+    }
+    .send-btn:hover{ background: #059669 }
+
+    /* Responsivo */
+    @media (max-width: 1200px){
+      .chat{ grid-template-columns: clamp(230px, 28vw, 280px) 1fr }
+    }
+    @media (max-width: 1024px){
+      .message{ max-width: clamp(78%, 60vw, 92%) }
+    }
+    @media (max-width: 768px){
+      .page{ padding: calc(8px + var(--safe-top)) 8px calc(8px + var(--safe-bottom)) }
+      .chat{ grid-template-columns: 1fr }  /* Oculta sidebar en móvil */
+      .sidebar{ display: none }
+      .contact-select{ max-width: 100% }   /* Selector full width */
+      .main-row{ grid-template-columns: auto 1fr; gap: 12px } /* Acciones saltan debajo si falta espacio */
+      .header-actions{ justify-content: flex-start }
+      .chat-header .avatar-img, .chat-header .avatar-fallback{ width: 42px; height: 42px }
+      .chat-messages{ padding: 12px }
+      .message{ max-width: 96%; padding: 10px 14px }
+      .text-input{ padding: 10px 12px }
+    }
+    @media (max-width: 420px){
+      .btn{ padding: 7px 10px }
+      .chat-header{ padding: 12px }
+      .message{ font-size: var(--fs-0); padding: 9px 12px }
+      .send-btn{ padding: 9px 12px }
+    }
+
+    .sr-only{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0 }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Topbar -->
+    <div class="topbar" role="region" aria-label="Barra de acciones">
+      <div class="topbar-title">Chat</div>
+      <div class="topbar-actions">
+        <a href="{% url 'dashboard:inbox' %}" class="btn">Bandeja</a>
+      </div>
+    </div>
+
+    <!-- Shell del chat -->
+    <section class="chat" aria-label="Área principal de chat">
+      <!-- Sidebar (desktop/tablet) -->
+      <aside class="sidebar" aria-label="Lista de contactos">
+        <div class="sidebar-header">
+          <h2 class="sidebar-title">👥 Contactos</h2>
+        </div>
+        <div class="sidebar-body">
+          {% for contact in contacts %}
+            <a href="{% url 'dashboard:chat' contact.id %}" class="contact-link" aria-label="Abrir chat con {{ contact.username }}">
+              <div class="contact">
+                {% if contact.avatar %}
+                  <img src="{{ contact.avatar.url }}" alt="Avatar de {{ contact.username }}" class="avatar-img" />
+                {% else %}
+                  <div class="avatar-fallback" data-username="{{ contact.username }}" aria-hidden="true"></div>
+                {% endif %}
+                <div>
+                  <strong>{{ contact.get_full_name|default:contact.username }}</strong><br />
+                  <small>ID: {{ contact.id }}</small>
+                </div>
+              </div>
+            </a>
+          {% empty %}
+            <p class="empty">No hay contactos disponibles.</p>
+          {% endfor %}
+        </div>
+      </aside>
+
+      <!-- Columna principal -->
+      <div class="chat-col" role="region" aria-label="Conversación">
+        <header class="chat-header" role="region" aria-label="Cabecera del chat">
+          <!-- Fila 1: Selector -->
+          <div class="selector-row">
+            <label for="contactSelect" class="sr-only">Selecciona contacto</label>
+            <select id="contactSelect" class="contact-select" onchange="location.href=this.value">
+              {% for contact in contacts %}
+                <option value="{% url 'dashboard:chat' contact.id %}"
+                        {% if contact.id == other_user.id %}selected{% endif %}>
+                  {{ contact.get_full_name|default:contact.username }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <!-- Fila 2: Avatar + título + acciones -->
+          <div class="main-row">
+            {% if other_user.avatar %}
+              <img src="{{ other_user.avatar.url }}" alt="Avatar de {{ other_user.username }}" class="avatar-img" />
+            {% else %}
+              <div class="avatar-fallback" data-username="{{ other_user.username }}" aria-hidden="true"></div>
+            {% endif %}
+            <div class="header-title">
+              <div class="line-1">
+                💬 Chat con <strong class="name">{{ other_user.get_full_name|default:other_user.username }}</strong>
+              </div>
+              {% if other_user.is_online %}
+                <div class="line-2 online">🟢 En línea</div>
+              {% else %}
+                <div class="line-2">Última vez: {{ other_user.last_login|date:"d/m/Y H:i" }}</div>
+              {% endif %}
+            </div>
+            <div class="header-actions">
+              <a href="{% url 'core:perfil_usuario' other_user.id %}" class="btn btn-ghost">Ver perfil</a>
+            </div>
+          </div>
+        </header>
+
+        <div class="chat-messages" id="chatBox" aria-live="polite">
+          {% for msg in messages %}
+            <div class="message {% if msg.sender_id == request.user.id %}sent{% else %}received{% endif %}">
+              <div class="meta">
+                <span>{{ msg.sender.get_full_name|default:msg.sender.username }}</span>
+                <time datetime="{{ msg.created_at|date:'c' }}">{{ msg.created_at|date:"d/m/Y H:i" }}</time>
+              </div>
+              <div>{{ msg.content|linebreaksbr }}</div>
+            </div>
+          {% empty %}
+            <p class="empty">No hay mensajes todavía.</p>
+          {% endfor %}
+        </div>
+
+        <div class="chat-input" role="form" aria-label="Enviar mensaje">
+          <form method="post" action="{% url 'dashboard:chat' other_user.id %}">
+            {% csrf_token %}
+            <div class="input-row">
+              <label for="message" class="sr-only">Escribe tu mensaje</label>
+              <input id="message" type="text" name="message" class="text-input" placeholder="Escribe tu mensaje y presiona Enter..." maxlength="1000" required autocomplete="off" />
+              <button type="submit" class="send-btn" aria-label="Enviar">Enviar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Fallback de avatares con color determinista por username
+    (function(){
+      const colors = ["#2563eb","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6"];
+      document.querySelectorAll(".avatar-fallback").forEach(el => {
+        const u = (el.dataset.username || "?").trim();
+        const i = (u[0] || "?").toUpperCase();
+        const idx = (u.codePointAt(0) || 0) % colors.length;
+        el.textContent = i;
+        el.style.backgroundColor = colors[idx];
+      });
+    })();
+
+    // Autoscroll al último mensaje
+    (function(){
+      const box = document.getElementById("chatBox");
+      if (!box) return;
+      const scroll = () => box.scrollTop = box.scrollHeight;
+      window.addEventListener("load", scroll, { once: true });
+      const form = document.querySelector(".chat-input form");
+      if (form) form.addEventListener("submit", () => setTimeout(scroll, 60));
+    })();
+
+    // Envío con Enter
+    (function(){
+      const input = document.getElementById("message");
+      if (!input) return;
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const form = input.closest("form");
+          if (form) form.submit();
+        }
+      });
+    })();
+
+    // Ajuste al enfocar el input en móvil para que no tape el último mensaje
+    (function(){
+      const input = document.getElementById("message");
+      const box = document.getElementById("chatBox");
+      if (!input || !box) return;
+      input.addEventListener("focus", () => setTimeout(() => box.scrollTop = box.scrollHeight, 120));
+    })();
+  </script>
+</body>
+</html>
