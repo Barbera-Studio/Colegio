@@ -18,7 +18,7 @@ environ.Env.read_env(BASE_DIR / ".env")  # Load variables from .env
 # --------------------------------------------------------------------------------------
 SECRET_KEY = env("SECRET_KEY", default="django-insecure-replace-me")
 DEBUG = env.bool("DEBUG", default=True)
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]", "colegio-a5bg.onrender.com"]
 
 # --------------------------------------------------------------------------------------
 # Applications
