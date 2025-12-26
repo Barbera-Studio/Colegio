@@ -8,3 +8,5 @@ django-filter==25.1
 django-extensions==4.1
 psycopg2-binary==2.9.10
 sqlparse==0.5.3
+celery==5.3.6
+redis==5.0.1
