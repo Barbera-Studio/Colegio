@@ -1,35 +1,22 @@
-# Django core
-Django==5.2.5
+Django==5.0.6
 sqlparse==0.5.3
 
-# WSGI server
 gunicorn==23.0.0
+whitenoise==6.6.0
 
-# Environment variables
 django-environ==0.12.0
 
-# Django REST Framework
 djangorestframework==3.16.1
 django-filter==25.1
-
-# Templates & forms
 django-widget-tweaks==1.5.0
 
-# Channels (ASGI)
 channels==4.1.0
 channels-redis==4.2.0
 redis==5.0.1
 
-# Celery
 celery==5.3.6
 django-celery-beat==2.6.0
 django-celery-results==2.5.1
 
-# Email (SMTP)
 requests==2.32.3
-
-# Static files (optional but recommended)
-whitenoise==6.6.0
-
-# Optional utilities
 psycopg2-binary==2.9.10
