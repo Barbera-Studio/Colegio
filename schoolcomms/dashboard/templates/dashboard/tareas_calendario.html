@@ -78,6 +78,14 @@
     border-radius: 6px;
   }
 
+  /* Texto cuando no hay eventos en vista lista */
+  .fc-list-empty {
+    padding: 1.2rem 0.75rem;
+    color: #6b7280;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
   /* Modal */
   .modal-overlay {
     position: fixed;
@@ -314,11 +322,11 @@ document.addEventListener('DOMContentLoaded', function() {
     },
 
     buttonText: {
-      today:    'Hoy',
-      month:    'Mes',
-      week:     'Semana',
-      day:      'Día',
-      list:     'Lista'
+      today: 'Hoy',
+      month: 'Mes',
+      week: 'Semana',
+      day: 'Día',
+      list: 'Lista'
     },
 
     views: {
@@ -326,9 +334,13 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonText: 'Mes'
       },
       listWeek: {
-        buttonText: 'Lista semanal'
+        buttonText: 'Lista semanal',
+        noEventsText: 'Sin tareas para mostrar'
       }
     },
+
+    // Texto general cuando no hay eventos (otras vistas)
+    noEventsText: 'Sin tareas para mostrar',
 
     events: events,
 
@@ -395,4 +407,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
 {% endblock %}
-
