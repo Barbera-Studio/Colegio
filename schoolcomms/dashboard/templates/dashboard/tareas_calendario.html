@@ -30,7 +30,7 @@
     box-shadow: 0 4px 24px rgba(15,23,42,0.4);
     width: 100%;
     max-width: 1000px;
-    margin: 32px auto 40px auto;
+    margin: 32px auto 40px auto;  /* centrado horizontal por defecto */
     min-height: 520px;
     box-sizing: border-box;
   }
@@ -84,6 +84,7 @@
     color: #6b7280;
     font-style: italic;
     font-size: 0.9rem;
+    text-align: center;
   }
 
   /* Modal */
@@ -164,10 +165,13 @@
 
   @media (max-width: 768px) {
     #calendar {
-      margin: 20px 10px 30px 10px;
+      /* centrado, con margen lateral simétrico */
+      margin: 20px auto 30px auto;
       padding: 14px;
       border-radius: 14px;
       min-height: 0;
+      width: 94%;
+      max-width: 600px;
     }
 
     .fc {
@@ -219,9 +223,11 @@
 
   @media (max-width: 480px) {
     #calendar {
-      margin: 16px 8px 24px 8px;
+      margin: 16px auto 24px auto;
       padding: 10px;
       border-radius: 12px;
+      width: 96%;
+      max-width: 420px;
     }
 
     .fc {
