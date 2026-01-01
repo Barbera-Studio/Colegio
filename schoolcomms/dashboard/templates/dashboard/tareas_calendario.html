@@ -4,94 +4,229 @@
 {% block title %}Calendario de Tareas · SchoolComms{% endblock %}
 
 {% block extra_head %}
-<!-- FullCalendar v6 no requiere CSS externo, pero puedes incluirlo si usas plugins visuales -->
 <style>
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: Inter, system-ui, sans-serif;
-  background: linear-gradient(135deg, #1e3a8a, #9333ea, #3b82f6);
-  background-size: 400% 400%;
-  animation: gradientFlow 25s ease infinite;
-}
-@keyframes gradientFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-#calendar {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  width: 90%;
-  max-width: 1000px;
-  margin: 40px auto;
-  min-height: 600px;
-}
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1050;
-}
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-.btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-  border: none;
-}
-.btn-secondary {
-  background: #e5e7eb;
-  color: #111827;
-  border: none;
-}
-.btn-danger {
-  background: #ef4444;
-  color: white;
-  border: none;
-}
-.chat-fab {
-  position: fixed;
-  bottom: 24px;
-  left: 24px;
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #3b82f6, #9333ea);
-  background-size: 200% 200%;
-  animation: pulseGradient 6s ease infinite;
-  color: white;
-  font-size: 1.5rem;
-  border-radius: 50%;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  z-index: 1000;
-}
-@keyframes pulseGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #1e3a8a, #9333ea, #3b82f6);
+    background-size: 400% 400%;
+    animation: gradientFlow 25s ease infinite;
+    overflow-x: hidden;
+  }
+
+  @keyframes gradientFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Contenedor del calendario: centrado, respirando en móviles y desktop */
+  #calendar {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 24px rgba(15,23,42,0.4);
+    width: 100%;
+    max-width: 1000px;
+    margin: 32px auto 40px auto;
+    min-height: 520px;
+    box-sizing: border-box;
+  }
+
+  /* Ajustes de FullCalendar en general */
+  .fc {
+    font-size: 0.95rem;
+  }
+
+  .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .fc-toolbar-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .fc-button {
+    border-radius: 9999px !important;
+    padding: 0.3rem 0.9rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+  }
+
+  .fc-button-primary {
+    background-color: #4f46e5 !important;
+    border-color: #4338ca !important;
+  }
+
+  .fc-button-primary:hover {
+    background-color: #4338ca !important;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 0.75rem;
+  }
+
+  .fc-daygrid-event {
+    font-size: 0.7rem;
+    line-height: 1.2;
+    padding: 1px 3px;
+    border-radius: 6px;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  .btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background: #3b82f6;
+    color: white;
+    border: none;
+  }
+
+  .btn-secondary {
+    background: #e5e7eb;
+    color: #111827;
+    border: none;
+  }
+
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+    border: none;
+  }
+
+  .chat-fab {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    background-size: 200% 200%;
+    animation: pulseGradient 6s ease infinite;
+    color: white;
+    font-size: 1.4rem;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1000;
+  }
+
+  @keyframes pulseGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ──────────────────────────────
+     RESPONSIVE: móviles / tablets
+     ────────────────────────────── */
+
+  @media (max-width: 768px) {
+    #calendar {
+      margin: 20px 10px 30px 10px;
+      padding: 14px;
+      border-radius: 14px;
+      min-height: 0;
+    }
+
+    .fc {
+      font-size: 0.82rem;
+    }
+
+    .fc-toolbar.fc-header-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.4rem;
+    }
+
+    .fc-toolbar-chunk {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    .fc-button {
+      flex: 1;
+      justify-content: center;
+      padding: 0.35rem 0.5rem !important;
+      font-size: 0.78rem !important;
+    }
+
+    .fc-daygrid-day-number {
+      font-size: 0.7rem;
+    }
+
+    .fc-daygrid-event {
+      font-size: 0.68rem;
+      padding: 1px 2px;
+    }
+
+    .chat-fab {
+      bottom: 16px;
+      left: 16px;
+      width: 52px;
+      height: 52px;
+      font-size: 1.3rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    #calendar {
+      margin: 16px 8px 24px 8px;
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .fc {
+      font-size: 0.78rem;
+    }
+
+    .fc-daygrid-event {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -105,7 +240,7 @@ html, body {
     <form method="POST">
       {% csrf_token %}
       <input type="hidden" name="tarea_id" id="modal-tarea-id">
-      <div style="display:flex; justify-content:end; gap:10px; margin-top:20px;">
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
         <a id="edit-link" class="btn btn-secondary">✏️ Editar</a>
         <a id="delete-link" class="btn btn-danger">🗑️ Eliminar</a>
         <button type="button" class="btn btn-secondary" id="close-modal">Cerrar</button>
@@ -128,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let tareas = [];
   try {
     const parsed = JSON.parse(raw.textContent);
-    tareas = Array.isArray(parsed) ? parsed : parsed.tareas || [];
+    tareas = Array.isArray(parsed) ? parsed : (parsed.tareas || []);
   } catch (err) {
     console.error("❌ Error al parsear JSON:", err);
   }
@@ -145,24 +280,72 @@ document.addEventListener('DOMContentLoaded', function() {
     borderColor: t.completada ? "#059669" : "#2563eb"
   }));
 
+  // Vista inicial adaptada: mes en escritorio, lista en móviles
+  const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+  const initialView = isSmallScreen ? 'listWeek' : 'dayGridMonth';
+
   const calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'es',
-    initialView: 'dayGridMonth',
+    initialView: initialView,
+    contentHeight: 'auto',
+    expandRows: true,
+    aspectRatio: 1.3,
+
     headerToolbar: {
-      left: 'prev,next today',
+      left: 'prev,next hoyBtn',
       center: 'title',
-      right: 'dayGridMonth,listWeek'
+      right: 'monthView,listWeek'
     },
+
+    // Botones personalizados en castellano
+    customButtons: {
+      hoyBtn: {
+        text: 'Hoy',
+        click: function() {
+          calendar.today();
+        }
+      },
+      monthView: {
+        text: 'Mes',
+        click: function() {
+          calendar.changeView('dayGridMonth');
+        }
+      }
+    },
+
+    buttonText: {
+      today:    'Hoy',
+      month:    'Mes',
+      week:     'Semana',
+      day:      'Día',
+      list:     'Lista'
+    },
+
+    views: {
+      dayGridMonth: {
+        buttonText: 'Mes'
+      },
+      listWeek: {
+        buttonText: 'Lista semanal'
+      }
+    },
+
     events: events,
+
     eventClick: function(info) {
       const e = info.event;
       const props = e.extendedProps || {};
-      const descripcion = props.descripcion ? props.descripcion.replace(/\n/g,'<br>') : '<em>Sin descripción</em>';
-      const estado = props.completada 
-        ? '<span class="text-green-600 font-semibold">✅ Completada</span>' 
-        : '<span class="text-yellow-600 font-semibold">⏳ Pendiente</span>';
-      const fecha = e.start 
-        ? `${e.start.toLocaleDateString('es-ES')} ${e.start.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}` 
+      const descripcion = props.descripcion
+        ? props.descripcion.replace(/\n/g,'<br>')
+        : '<em>Sin descripción</em>';
+
+      const estado = props.completada
+        ? '<span style="color:#16a34a;font-weight:600;">✅ Completada</span>'
+        : '<span style="color:#ca8a04;font-weight:600;">⏳ Pendiente</span>';
+
+      const fecha = e.start
+        ? e.start.toLocaleDateString('es-ES') + ' ' +
+          e.start.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
         : e.startStr;
 
       document.getElementById('modal-title').innerText = e.title;
@@ -179,6 +362,18 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.classList.remove("hidden");
       modal.style.display = "flex";
       modal.setAttribute('aria-hidden', 'false');
+    }
+  });
+
+  // Reaccionar al cambio de tamaño: en móvil, cambiar a lista; en grande, a mes
+  window.addEventListener('resize', function() {
+    const small = window.matchMedia("(max-width: 768px)").matches;
+    const currentView = calendar.view.type;
+
+    if (small && currentView !== 'listWeek') {
+      calendar.changeView('listWeek');
+    } else if (!small && currentView !== 'dayGridMonth') {
+      calendar.changeView('dayGridMonth');
     }
   });
 
@@ -200,3 +395,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
 {% endblock %}
+
