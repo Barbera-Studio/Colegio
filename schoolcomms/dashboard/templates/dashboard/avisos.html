@@ -1,7 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block content %}
 <style>
+  :root {
+    --avisos-max-width: 960px;
+    --avisos-padding-desktop: 40px;
+    --avisos-padding-mobile: 20px;
+    --avisos-margin-top-desktop: 80px;
+    --avisos-margin-top-mobile: 40px;
+  }
+
   html, body {
     height: 100%;
     margin: 0;
@@ -25,16 +34,24 @@
 
   main {
     flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    padding-inline: 12px; /* pequeño margen lateral general */
   }
 
   .avisos-wrapper {
-    max-width: 960px;
-    margin: 80px auto;
-    padding: 40px;
-    background: rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: var(--avisos-max-width);
+    margin-top: var(--avisos-margin-top-desktop);
+    margin-bottom: 40px;
+    margin-inline: auto;
+    padding: var(--avisos-padding-desktop);
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 24px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
     animation: fadeInUp 0.8s ease;
     color: #fff;
     position: relative;
@@ -46,9 +63,9 @@
   }
 
   .avisos-wrapper h1 {
-    font-size: 2.5rem;
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
     font-weight: 700;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
     text-align: center;
     background: linear-gradient(90deg, #fbbf24, #60a5fa, #a78bfa);
     background-size: 300% 300%;
@@ -57,6 +74,7 @@
     color: transparent;
     -webkit-text-fill-color: transparent;
     animation: shineTitle 8s ease infinite;
+    line-height: 1.2;
   }
 
   @keyframes shineTitle {
@@ -68,7 +86,7 @@
   .crear-aviso-wrapper {
     display: flex;
     justify-content: center;
-    margin-bottom: 40px;
+    margin-bottom: 28px;
     animation: floatUp 2s ease-in-out infinite alternate;
   }
 
@@ -77,18 +95,19 @@
     background-size: 300% 300%;
     animation: pulseGradient 6s ease infinite;
     color: white;
-    padding: 14px 28px;
-    font-size: 1.1rem;
+    padding: 12px 24px;
+    font-size: 1rem;
     font-weight: 700;
     border-radius: 9999px;
     box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
     text-decoration: none;
-    transition: transform 0.3s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     position: relative;
+    white-space: nowrap;
   }
 
   .crear-aviso-btn:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
     box-shadow: 0 0 40px rgba(139, 92, 246, 0.7);
   }
 
@@ -105,66 +124,84 @@
 
   .search-bar {
     display: flex;
+    flex-wrap: nowrap;
     gap: 1rem;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
+    align-items: stretch;
   }
 
-  input[type="text"] {
-    flex: 1;
-    padding: 12px 20px;
+  .search-bar input[type="text"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 12px 16px;
     border-radius: 12px;
     border: none;
-    font-size: 1rem;
-    color: #111;
+    font-size: 0.95rem;
+    color: #111827;
+    outline: none;
+    box-shadow: 0 0 0 1px rgba(15,23,42,0.1);
   }
 
-  button {
+  .search-bar button {
+    flex: 0 0 auto;
     background-color: #6366f1;
     color: white;
-    padding: 12px 20px;
+    padding: 12px 18px;
     border-radius: 12px;
-    font-weight: bold;
+    font-size: 0.95rem;
+    font-weight: 700;
     border: none;
-    transition: background 0.3s ease;
+    transition: background 0.25s ease, transform 0.1s ease;
+    white-space: nowrap;
   }
 
-  button:hover {
+  .search-bar button:hover {
     background-color: #4f46e5;
+    transform: translateY(-1px);
   }
 
   .aviso-card {
-    background-color: rgba(255,255,255,0.15);
+    background-color: rgba(15,23,42,0.55);
     border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    padding: 18px 18px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .aviso-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.35);
   }
 
   .aviso-card h2 {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    word-break: break-word;
   }
 
   .aviso-card p {
-    font-size: 1rem;
-    color: #f3f4f6;
-    margin-bottom: 12px;
-  }
-
-  .aviso-meta {
-    font-size: 0.85rem;
-    color: #d1d5db;
+    font-size: 0.95rem;
+    color: #e5e7eb;
     margin-bottom: 10px;
   }
 
+  .aviso-meta {
+    font-size: 0.8rem;
+    color: #d1d5db;
+    margin-bottom: 8px;
+  }
+
+  .aviso-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
   .aviso-actions a {
-    margin-right: 15px;
+    font-size: 0.9rem;
+    margin-right: 0;
     font-weight: 500;
     text-decoration: none;
     transition: color 0.2s ease;
@@ -181,52 +218,146 @@
   .no-avisos {
     text-align: center;
     font-style: italic;
-    color: #e5e7eb;
-    margin-top: 2rem;
+    color: #f9fafb;
+    margin-top: 1.8rem;
+    font-size: 0.95rem;
   }
 
   .chat-fab {
-  position: fixed;
-  bottom: 24px;
-  left: 24px;
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #3b82f6, #9333ea);
-  background-size: 200% 200%;
-  animation: pulseGradient 6s ease infinite;
-  color: white;
-  font-size: 1.5rem;
-  border-radius: 50%;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  z-index: 1000;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    background-size: 200% 200%;
+    animation: pulseGradient 6s ease infinite;
+    color: white;
+    font-size: 1.4rem;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1000;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
 
-.chat-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-}
+  .chat-fab:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+  }
 
-@keyframes pulseGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+  /* ────────────────────────────────────────────────
+     RESPONSIVE: móviles y pantallas pequeñas
+     ──────────────────────────────────────────────── */
+
+  @media (max-width: 768px) {
+    main {
+      padding-inline: 10px;
+    }
+
+    .avisos-wrapper {
+      margin-top: var(--avisos-margin-top-mobile);
+      margin-bottom: 24px;
+      padding: var(--avisos-padding-mobile);
+      border-radius: 18px;
+    }
+
+    .crear-aviso-wrapper {
+      margin-bottom: 20px;
+    }
+
+    .crear-aviso-btn {
+      width: 100%;
+      text-align: center;
+      padding-block: 12px;
+      font-size: 0.95rem;
+    }
+
+    .search-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .search-bar input[type="text"] {
+      width: 100%;
+      font-size: 0.9rem;
+    }
+
+    .search-bar button {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.95rem;
+      padding-block: 11px;
+    }
+
+    .aviso-card {
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .aviso-card h2 {
+      font-size: 1.05rem;
+    }
+
+    .aviso-card p {
+      font-size: 0.9rem;
+    }
+
+    .no-avisos {
+      font-size: 0.9rem;
+    }
+
+    .chat-fab {
+      bottom: 16px;
+      right: 16px;
+      width: 52px;
+      height: 52px;
+      font-size: 1.3rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .avisos-wrapper {
+      padding: 16px 14px;
+      margin-top: 32px;
+      border-radius: 16px;
+    }
+
+    .crear-aviso-btn {
+      font-size: 0.9rem;
+      padding-inline: 16px;
+    }
+
+    .search-bar {
+      gap: 0.6rem;
+    }
+
+    .aviso-card {
+      padding: 14px;
+    }
+  }
 </style>
 
 <div class="avisos-wrapper">
   <h1>📢 Avisos Escolares</h1>
 
-    <div class="crear-aviso-wrapper">
-      <a href="{% url 'dashboard:crear_aviso' %}" class="crear-aviso-btn">➕ Crear aviso</a>
-    </div>
+  <div class="crear-aviso-wrapper">
+    <a href="{% url 'dashboard:crear_aviso' %}" class="crear-aviso-btn">➕ Crear aviso</a>
+  </div>
 
   <form method="get" class="search-bar">
-    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar avisos...">
+    <input
+      type="text"
+      name="q"
+      value="{{ request.GET.q }}"
+      placeholder="Buscar avisos..."
+      autocomplete="off"
+    >
     <button type="submit">Buscar</button>
   </form>
 
@@ -234,7 +365,9 @@
     {% for aviso in avisos %}
       <div class="aviso-card">
         <h2>{{ aviso.titulo }}</h2>
-        <div class="aviso-meta">Publicado el {{ aviso.fecha_publicacion|date:"d/m/Y H:i" }}</div>
+        <div class="aviso-meta">
+          Publicado el {{ aviso.fecha_publicacion|date:"d/m/Y H:i" }}
+        </div>
         <p>{{ aviso.contenido|truncatewords:30 }}</p>
         <div class="aviso-actions">
           <a href="{% url 'dashboard:detalle_aviso' aviso.id %}" class="ver">👀 Ver</a>
@@ -249,5 +382,6 @@
     <p class="no-avisos">❌ No hay avisos disponibles.</p>
   {% endif %}
 </div>
+
 <a href="{% url 'dashboard:chat' request.user.id %}" class="chat-fab" title="Ir al chat">💬</a>
 {% endblock %}
