@@ -28,30 +28,36 @@
       animation: fadeInUp 0.45s ease-out;
     }
 
-    /* 🔧 Dominancia visual en móviles: el card ocupa casi toda la pantalla */
-
     .login-wrapper {
       min-height: 100vh;
       display: flex;
-      align-items: center;       /* centrado vertical real */
-      justify-content: center;   /* centrado horizontal */
-      padding: 0.75rem;          /* muy poco margen alrededor en móviles */
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 0.5rem;
+      padding-bottom: 1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
     }
 
     .login-card {
       width: 100%;
-      max-width: 480px;          /* límite en pantallas más grandes */
+      max-width: 480px;
       border-radius: 1.25rem;
+      transform: scale(1);
+      transition: transform 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .login-card {
+        transform: scale(1.35);
+        max-width: 100%;
+      }
     }
 
     @media (max-width: 480px) {
-      .login-wrapper {
-        padding: 0.5rem;         /* aún menos margen: card casi a pantalla completa */
-      }
-
       .login-card {
-        max-width: 100%;         /* usar todo el ancho disponible */
-        border-radius: 1rem;
+        transform: scale(1.45);
+        max-width: 100%;
       }
     }
   </style>
