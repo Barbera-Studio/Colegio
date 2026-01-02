@@ -28,17 +28,24 @@
       animation: fadeInUp 0.45s ease-out;
     }
 
-    /* 🔥 ESTA ES LA CLAVE: SIN min-h-screen */
+    /* 🔥 Fondo perfecto sin repetición ni “cuatro capas” */
+    body {
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* 🔥 Contenedor sin min-h-screen para evitar espacio muerto */
     .login-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 1rem;
-      padding-top: 1.5rem; /* card MUY cerca */
-      gap: 1rem;
+      padding: 0.5rem;
+      padding-top: 0.75rem; /* card MUY cerca */
+      height: 100%;
     }
 
+    /* 🔥 Card base */
     .login-card {
       width: 100%;
       max-width: 480px;
@@ -47,7 +54,7 @@
       transition: transform 0.3s ease;
     }
 
-    /* 🔥 ZOOM REAL EN MÓVILES */
+    /* 🔥 Zoom real en móviles */
     @media (max-width: 768px) {
       .login-card {
         transform: scale(1.45);
@@ -66,7 +73,6 @@
 
 <body class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
 
-  <!-- 🔥 SIN min-h-screen: ahora sí se acerca -->
   <div class="login-wrapper">
 
     <div class="login-card bg-white shadow-2xl overflow-hidden animate-fadeInUp">
