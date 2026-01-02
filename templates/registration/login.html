@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Iniciar Sesión</title>
   {% load static %}
+  <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
@@ -19,58 +20,42 @@
   </script>
 
   <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInUp {
+      animation: fadeInUp 0.45s ease-out;
+    }
+
+    /* 🔥 Fondo perfecto sin repetición */
     body {
       height: 100dvh;
       overflow: hidden;
     }
 
-    /* CONTENEDOR: centrado real */
+    /* 🔥 Contenedor sin min-h-screen */
     .login-wrapper {
-      height: 100%;
+      position: absolute;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.5rem;
+      padding: 1rem;
     }
 
-    /* CARD BASE */
+    /* 🔥 Card adaptado a móviles sin zoom roto */
     .login-card {
       width: 100%;
-      max-width: 480px;
+      max-width: 420px;
+      border-radius: 1.25rem;
       background: white;
-      border-radius: 1.5rem;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.28);
-      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
     }
 
-    /* 📱📱📱 MÓVILES: CARD XXL */
     @media (max-width: 480px) {
       .login-card {
-        padding: 2.8rem;          /* MÁS GRANDE */
-        font-size: 1.28rem;       /* TIPOGRAFÍA MÁS GRANDE */
-        border-radius: 1.25rem;
-      }
-
-      .login-title {
-        font-size: 2.4rem;        /* TÍTULO MUY GRANDE */
-      }
-
-      .login-subtitle {
-        font-size: 1.2rem;
-      }
-
-      .input-field {
-        padding: 1.2rem 1rem;     /* INPUTS MUCHO MÁS ALTOS */
-        font-size: 1.2rem;
-      }
-
-      .login-button {
-        padding: 1.3rem;
-        font-size: 1.35rem;       /* BOTÓN MUY GRANDE */
-      }
-
-      .footer-text {
-        font-size: 1.1rem;
+        max-width: 100%;
       }
     }
   </style>
@@ -82,14 +67,14 @@
 
     <div class="login-card animate-fadeInUp">
 
-      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 px-6 py-6 text-center text-white rounded-t-2xl">
-        <h2 class="login-title font-bold tracking-wide">🔐 Bienvenido</h2>
-        <p class="login-subtitle mt-2 opacity-90">Accede al panel del colegio</p>
+      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 px-6 py-5 text-center text-white rounded-t-2xl">
+        <h2 class="text-3xl font-bold tracking-wide">🔐 Bienvenido</h2>
+        <p class="text-sm mt-2 opacity-90">Accede al panel del colegio</p>
       </div>
 
-      <div class="px-2 py-6 sm:px-4 sm:py-8">
+      <div class="px-6 py-6 sm:px-8 sm:py-8">
         {% load widget_tweaks %}
-        <form method="post" class="space-y-7" onsubmit="handleSubmit()">
+        <form method="post" class="space-y-6" onsubmit="handleSubmit()">
           {% csrf_token %}
 
           {% if form.errors %}
@@ -106,26 +91,26 @@
           {% endif %}
 
           <div>
-            <label class="block text-base font-medium text-gray-700 mb-1">Usuario</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
             <div class="relative flex items-center">
               <span class="absolute left-3 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 20 20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                 </svg>
               </span>
-              {% render_field form.username class="input-field pl-14 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+              {% render_field form.username class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
             </div>
           </div>
 
           <div>
-            <label class="block text-base font-medium text-gray-700 mb-1">Contraseña</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
             <div class="relative flex items-center">
               <span class="absolute left-3 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 20 20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M5 9V7a5 5 0 1110 0v2h1a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1h1zm2-2a3 3 0 016 0v2H7V7z" clip-rule="evenodd"/>
                 </svg>
               </span>
-              {% render_field form.password class="input-field pl-14 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+              {% render_field form.password class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
             </div>
           </div>
 
@@ -140,8 +125,8 @@
           </div>
 
           <button id="loginBtn" type="submit"
-            class="login-button w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold flex justify-center items-center space-x-3 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
-            <svg id="spinner" class="hidden animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg text-base font-semibold flex justify-center items-center space-x-2 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
+            <svg id="spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
             </svg>
@@ -150,7 +135,7 @@
         </form>
       </div>
 
-      <div class="px-6 py-5 bg-gray-50 text-center footer-text text-gray-600 rounded-b-2xl">
+      <div class="px-6 py-4 bg-gray-50 text-center text-sm text-gray-600 rounded-b-2xl">
         ¿No tienes cuenta?
         <a href="{% url 'core:registro' %}" class="font-semibold text-indigo-600 hover:underline">
           Regístrate aquí
