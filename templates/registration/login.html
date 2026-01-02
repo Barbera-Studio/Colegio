@@ -20,123 +20,102 @@
   </script>
 
   <style>
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .animate-fadeIn {
-      animation: fadeIn 0.8s ease-out;
-    }
-
-    /* Ajustes finos para que el card NO quede lejano en móviles */
-
-    body {
-      min-height: 100vh;
-    }
-
-    /* En móviles: el card empieza más arriba, no centrado verticalmente */
-    @media (max-width: 768px) {
-      body {
-        padding-top: 24px;
-        padding-bottom: 24px;
-      }
-
-      .login-card {
-        margin-inline: 16px;
-        margin-top: 0;       /* que no baje más */
-        max-width: 420px;
-        transform: translateY(0); /* asegurar que no se desplace hacia abajo por animación */
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding-top: 16px;
-        padding-bottom: 16px;
-      }
-
-      .login-card {
-        margin-inline: 12px;
-        max-width: 380px;
-      }
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out;
     }
   </style>
 </head>
 
-{# En escritorio: centrado vertical. En móviles: pegado hacia arriba (items-start) #}
-<body class="min-h-screen flex justify-center md:items-center items-start bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
+<body class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
 
-  <div class="login-card w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden transform transition duration-500 hover:scale-105 animate-fadeIn md:mt-0 mt-4 mb-8">
-    <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-6 text-center text-white">
-      <h2 class="text-3xl font-bold tracking-wide">🔐 Bienvenido</h2>
-      <p class="text-sm mt-2 opacity-90">Accede al panel del colegio</p>
-    </div>
+  {# CONTENEDOR GENERAL:
+     - min-h-screen para cubrir toda la altura
+     - en móviles: card más arriba (pt-6)
+     - en escritorio: centrado vertical (md:items-center) #}
+  <div class="min-h-screen flex justify-center md:items-center pt-6 pb-8 md:pt-0 md:pb-0 px-4">
 
-    <div class="p-8">
-      {% load widget_tweaks %}
-      <form method="post" class="space-y-6" onsubmit="handleSubmit()">
-        {% csrf_token %}
+    <div class="login-card w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeInUp">
 
-        {% if form.errors %}
-          <div class="text-red-600 text-sm mb-4">
-            {% for field in form %}
-              {% for error in field.errors %}
+      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-6 text-center text-white">
+        <h2 class="text-2xl md:text-3xl font-bold tracking-wide">🔐 Bienvenido</h2>
+        <p class="text-sm mt-2 opacity-90">Accede al panel del colegio</p>
+      </div>
+
+      <div class="p-6 md:p-8">
+        {% load widget_tweaks %}
+        <form method="post" class="space-y-6" onsubmit="handleSubmit()">
+          {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="text-red-600 text-sm mb-2">
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
                 <p>{{ error }}</p>
               {% endfor %}
-            {% endfor %}
-            {% for error in form.non_field_errors %}
-              <p>{{ error }}</p>
-            {% endfor %}
+            </div>
+          {% endif %}
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              {% render_field form.username class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+            </div>
           </div>
-        {% endif %}
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-          <div class="relative flex items-center">
-            <span class="absolute left-3 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-              </svg>
-            </span>
-            {% render_field form.username class="pl-10 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 1110 0v2h1a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1h1zm2-2a3 3 0 016 0v2H7V7z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              {% render_field form.password class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-          <div class="relative flex items-center">
-            <span class="absolute left-3 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5 9V7a5 5 0 1110 0v2h1a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1h1zm2-2a3 3 0 016 0v2H7V7z" clip-rule="evenodd"/>
-              </svg>
-            </span>
-            {% render_field form.password class="pl-10 w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-sm text-gray-600">
+              <input type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+              <span>Recuérdame</span>
+            </label>
+            <a href="{% url 'password_reset' %}" class="text-sm text-indigo-600 hover:underline">
+              ¿Olvidaste tu contraseña?
+            </a>
           </div>
-        </div>
 
-        <div class="flex items-center justify-between">
-          <label class="flex items-center space-x-2 text-sm text-gray-600">
-            <input type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
-            <span>Recuérdame</span>
-          </label>
-          <a href="{% url 'password_reset' %}" class="text-sm text-indigo-600 hover:underline">¿Olvidaste tu contraseña?</a>
-        </div>
+          <button id="loginBtn" type="submit"
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold flex justify-center items-center space-x-2 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
+            <svg id="spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            <span id="btnText">Entrar</span>
+          </button>
+        </form>
+      </div>
 
-        <button id="loginBtn" type="submit"
-          class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold flex justify-center items-center space-x-2 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
-          <svg id="spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-          </svg>
-          <span id="btnText">Entrar</span>
-        </button>
-      </form>
+      <div class="px-6 py-4 bg-gray-50 text-center text-sm text-gray-600">
+        ¿No tienes cuenta?
+        <a href="{% url 'core:registro' %}" class="font-semibold text-indigo-600 hover:underline">
+          Regístrate aquí
+        </a>
+      </div>
     </div>
 
-    <div class="px-6 py-4 bg-gray-50 text-center text-sm text-gray-600">
-      ¿No tienes cuenta?
-      <a href="{% url 'core:registro' %}" class="font-semibold text-indigo-600 hover:underline">Regístrate aquí</a>
-    </div>
   </div>
 
 </body>
