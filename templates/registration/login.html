@@ -25,37 +25,19 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .animate-fadeInUp {
-      animation: fadeInUp 0.5s ease-out;
+      animation: fadeInUp 0.45s ease-out;
     }
 
-    /* 🔥 CONTROL TOTAL DEL TAMAÑO EN MÓVILES 🔥 */
-    .login-card {
-      transform-origin: top center;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    /* Escritorio: tamaño normal */
-    @media (min-width: 769px) {
-      .login-card {
-        transform: scale(1);
-      }
-    }
-
-    /* Tablets / móviles grandes: un poco más grande */
+    /* Ajustes finos para móviles: card grande y cercano */
     @media (max-width: 768px) {
       .login-card {
-        max-width: 420px;
-        width: 100%;
-        transform: scale(1.12);        /* MÁS GRANDE */
+        max-width: 480px;
       }
     }
 
-    /* Móviles pequeños: todavía más grande y más arriba */
     @media (max-width: 480px) {
       .login-card {
-        max-width: 380px;
-        width: 100%;
-        transform: scale(1.18);        /* TODAVÍA MÁS GRANDE */
+        max-width: 420px;
       }
     }
   </style>
@@ -63,21 +45,18 @@
 
 <body class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
 
-  {# CONTENEDOR:
-     - en móviles: pegado hacia arriba, con poco padding
-     - en escritorio: centrado vertical #}
-  <div class="min-h-screen flex justify-center md:items-center items-start pt-4 pb-8 md:pt-0 md:pb-0 px-2 sm:px-4">
+  <div class="min-h-screen flex justify-center items-start pt-6 pb-10 px-4">
 
-    <div class="login-card bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeInUp">
+    <div class="login-card w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeInUp">
 
-      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-5 md:p-6 text-center text-white">
-        <h2 class="text-2xl md:text-3xl font-bold tracking-wide">🔐 Bienvenido</h2>
+      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 px-6 py-5 text-center text-white">
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-wide">🔐 Bienvenido</h2>
         <p class="text-sm mt-2 opacity-90">Accede al panel del colegio</p>
       </div>
 
-      <div class="p-5 md:p-8">
+      <div class="px-6 py-6 sm:px-8 sm:py-8">
         {% load widget_tweaks %}
-        <form method="post" class="space-y-5 md:space-y-6" onsubmit="handleSubmit()">
+        <form method="post" class="space-y-5 sm:space-y-6" onsubmit="handleSubmit()">
           {% csrf_token %}
 
           {% if form.errors %}
@@ -101,7 +80,7 @@
                   <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                 </svg>
               </span>
-              {% render_field form.username class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+              {% render_field form.username class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
             </div>
           </div>
 
@@ -113,22 +92,22 @@
                   <path fill-rule="evenodd" d="M5 9V7a5 5 0 1110 0v2h1a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1h1zm2-2a3 3 0 016 0v2H7V7z" clip-rule="evenodd"/>
                 </svg>
               </span>
-              {% render_field form.password class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
+              {% render_field form.password class="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-indigo-500 focus:outline-none" %}
             </div>
           </div>
 
           <div class="flex items-center justify-between">
-            <label class="flex items-center space-x-2 text-xs md:text-sm text-gray-600">
+            <label class="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
               <input type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
               <span>Recuérdame</span>
             </label>
-            <a href="{% url 'password_reset' %}" class="text-xs md:text-sm text-indigo-600 hover:underline">
+            <a href="{% url 'password_reset' %}" class="text-xs sm:text-sm text-indigo-600 hover:underline">
               ¿Olvidaste tu contraseña?
             </a>
           </div>
 
           <button id="loginBtn" type="submit"
-            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 md:py-3 rounded-lg text-sm md:text-base font-semibold flex justify-center items-center space-x-2 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold flex justify-center items-center space-x-2 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
             <svg id="spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
@@ -138,7 +117,7 @@
         </form>
       </div>
 
-      <div class="px-6 py-4 bg-gray-50 text-center text-xs md:text-sm text-gray-600">
+      <div class="px-6 py-4 bg-gray-50 text-center text-xs sm:text-sm text-gray-600">
         ¿No tienes cuenta?
         <a href="{% url 'core:registro' %}" class="font-semibold text-indigo-600 hover:underline">
           Regístrate aquí
