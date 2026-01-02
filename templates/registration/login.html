@@ -6,6 +6,7 @@
   {% load static %}
   <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script>
     function handleSubmit() {
       const btn = document.getElementById("loginBtn");
@@ -17,6 +18,7 @@
       btnText.textContent = "Entrando...";
     }
   </script>
+
   <style>
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(30px); }
@@ -26,29 +28,33 @@
       animation: fadeIn 0.8s ease-out;
     }
 
-    /* Ajustes finos de layout para que el card
-       no quede “perdido” en móviles */
+    /* Ajustes finos para que el card NO quede lejano en móviles */
+
     body {
       min-height: 100vh;
     }
 
+    /* En móviles: el card empieza más arriba, no centrado verticalmente */
     @media (max-width: 768px) {
       body {
-        /* un poco menos de altura visual, más proximidad */
-        padding-top: 32px;
-        padding-bottom: 32px;
+        padding-top: 24px;
+        padding-bottom: 24px;
       }
+
       .login-card {
         margin-inline: 16px;
+        margin-top: 0;       /* que no baje más */
         max-width: 420px;
+        transform: translateY(0); /* asegurar que no se desplace hacia abajo por animación */
       }
     }
 
     @media (max-width: 480px) {
       body {
-        padding-top: 24px;
-        padding-bottom: 24px;
+        padding-top: 16px;
+        padding-bottom: 16px;
       }
+
       .login-card {
         margin-inline: 12px;
         max-width: 380px;
@@ -56,9 +62,11 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
 
-  <div class="login-card w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden transform transition duration-500 hover:scale-105 animate-fadeIn">
+{# En escritorio: centrado vertical. En móviles: pegado hacia arriba (items-start) #}
+<body class="min-h-screen flex justify-center md:items-center items-start bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
+
+  <div class="login-card w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden transform transition duration-500 hover:scale-105 animate-fadeIn md:mt-0 mt-4 mb-8">
     <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-6 text-center text-white">
       <h2 class="text-3xl font-bold tracking-wide">🔐 Bienvenido</h2>
       <p class="text-sm mt-2 opacity-90">Accede al panel del colegio</p>
