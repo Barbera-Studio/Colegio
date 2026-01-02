@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Iniciar Sesión</title>
   {% load static %}
-  <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
@@ -28,28 +27,29 @@
       animation: fadeInUp 0.45s ease-out;
     }
 
-    /* 🔥 Fondo perfecto sin repetición */
+    /* Fondo estable sin repetición */
     body {
       height: 100dvh;
       overflow: hidden;
     }
 
-    /* 🔥 Contenedor sin min-h-screen */
+    /* Contenedor centrado real sin min-h-screen */
     .login-wrapper {
       position: absolute;
       inset: 0;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      align-items: flex-start;   /* card arriba */
+      justify-content: center;   /* centrado horizontal */
       padding: 1rem;
+      padding-top: 1.25rem;      /* distancia exacta */
     }
 
-    /* 🔥 Card adaptado a móviles sin zoom roto */
+    /* Card estable sin zoom */
     .login-card {
       width: 100%;
       max-width: 420px;
-      border-radius: 1.25rem;
       background: white;
+      border-radius: 1.25rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.25);
     }
 
