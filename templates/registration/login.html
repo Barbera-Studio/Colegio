@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Iniciar Sesión</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
   {% load static %}
+  {% load widget_tweaks %}
+
   <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -21,38 +25,36 @@
 
   <style>
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
     .animate-fadeInUp {
       animation: fadeInUp 0.45s ease-out;
     }
 
-    /* 🔥 Fondo perfecto sin repetición */
     body {
-      height: 100dvh;
-      overflow: hidden;
+      min-height: 100dvh;
+      overflow-x: hidden;
     }
 
-    /* 🔥 Contenedor sin min-h-screen */
     .login-wrapper {
-      position: absolute;
-      inset: 0;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1rem;
     }
 
-    /* 🔥 Card adaptado a móviles sin zoom roto */
     .login-card {
       width: 100%;
       max-width: 420px;
-      border-radius: 1.25rem;
       background: white;
+      border-radius: 1.25rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.25);
     }
 
+    /* Ajustes finos SOLO para móviles */
     @media (max-width: 480px) {
       .login-card {
         max-width: 100%;
@@ -67,18 +69,28 @@
 
     <div class="login-card animate-fadeInUp">
 
-      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 px-6 py-5 text-center text-white rounded-t-2xl">
-        <h2 class="text-3xl font-bold tracking-wide">🔐 Bienvenido</h2>
-        <p class="text-sm mt-2 opacity-90">Accede al panel del colegio</p>
+      <!-- HEADER -->
+      <div class="bg-gradient-to-r from-indigo-600 to-blue-500
+                  px-6 py-5 sm:py-5 py-4
+                  text-center text-white rounded-t-2xl">
+
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-wide">
+          🔐 Bienvenido
+        </h2>
+
+        <p class="text-xs sm:text-sm mt-2 opacity-90">
+          Accede al panel del colegio
+        </p>
       </div>
 
+      <!-- FORM -->
       <div class="px-6 py-6 sm:px-8 sm:py-8">
-        {% load widget_tweaks %}
-        <form method="post" class="space-y-6" onsubmit="handleSubmit()">
+
+        <form method="post" class="space-y-5" onsubmit="handleSubmit()">
           {% csrf_token %}
 
           {% if form.errors %}
-            <div class="text-red-600 text-sm mb-2">
+            <div class="text-red-600 text-sm">
               {% for field in form %}
                 {% for error in field.errors %}
                   <p>{{ error }}</p>
@@ -90,10 +102,13 @@
             </div>
           {% endif %}
 
+          <!-- USUARIO -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-            <div class="relative flex items-center">
-              <span class="absolute left-3 text-gray-400">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Usuario
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                 </svg>
@@ -102,10 +117,13 @@
             </div>
           </div>
 
+          <!-- CONTRASEÑA -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-            <div class="relative flex items-center">
-              <span class="absolute left-3 text-gray-400">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M5 9V7a5 5 0 1110 0v2h1a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9a1 1 0 011-1h1zm2-2a3 3 0 016 0v2H7V7z" clip-rule="evenodd"/>
                 </svg>
@@ -114,27 +132,39 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-between">
-            <label class="flex items-center space-x-2 text-sm text-gray-600">
+          <!-- OPCIONES -->
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center space-x-2 text-gray-600">
               <input type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
               <span>Recuérdame</span>
             </label>
-            <a href="{% url 'password_reset' %}" class="text-sm text-indigo-600 hover:underline">
+            <a href="{% url 'password_reset' %}" class="text-indigo-600 hover:underline">
               ¿Olvidaste tu contraseña?
             </a>
           </div>
 
+          <!-- BOTÓN -->
           <button id="loginBtn" type="submit"
-            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg text-base font-semibold flex justify-center items-center space-x-2 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300">
-            <svg id="spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600
+                   text-white py-3 rounded-lg text-base font-semibold
+                   flex justify-center items-center space-x-2
+                   hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                   transition">
+
+            <svg id="spinner" class="hidden animate-spin h-5 w-5 text-white"
+                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10"
+                      stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"></path>
             </svg>
+
             <span id="btnText">Entrar</span>
           </button>
         </form>
       </div>
 
+      <!-- FOOTER -->
       <div class="px-6 py-4 bg-gray-50 text-center text-sm text-gray-600 rounded-b-2xl">
         ¿No tienes cuenta?
         <a href="{% url 'core:registro' %}" class="font-semibold text-indigo-600 hover:underline">
